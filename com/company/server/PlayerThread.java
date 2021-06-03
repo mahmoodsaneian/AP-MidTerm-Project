@@ -53,9 +53,9 @@ public class PlayerThread extends Thread {
 
     void printUsers() {
         if (server.hasUsers()) {
-            writer.println("exist players: " + server.getUserNames());
+            writer.println("\n exist players: " + server.getUserNames());
         } else {
-            writer.println("No other players connected");
+            writer.println("\n No other players connected");
         }
     }
 

@@ -7,10 +7,12 @@ import java.util.*;
 public class Server {
     private Set<String> userNames;
     private Set<PlayerThread> userThreads;
+    private int counterClient;
 
     public Server() {
         userNames = new HashSet<String>();
         userThreads = new HashSet<PlayerThread>();
+        counterClient = 0;
     }
 
     public void execute() {
@@ -23,6 +25,8 @@ public class Server {
                 System.out.println("New player connected");
 
                 PlayerThread newUser = new PlayerThread(socket, this);
+                counterClient++;
+                System.out.println("number of player in game : "+counterClient);
                 userThreads.add(newUser);
                 newUser.start();
 
@@ -35,7 +39,7 @@ public class Server {
     }
 
 
-    void broadcast(String message, PlayerThread excludeUser) {
+    public void broadcast(String message, PlayerThread excludeUser) {
         for (PlayerThread aUser : userThreads) {
             if (aUser != excludeUser)
                 aUser.sendMessage(message);
@@ -43,12 +47,12 @@ public class Server {
     }
 
 
-    void addUserName(String userName) {
+    public void addUserName(String userName) {
         userNames.add(userName);
     }
 
 
-    void removeUser(String userName, PlayerThread aUser) {
+    public void removeUser(String userName, PlayerThread aUser) {
         boolean removed = userNames.remove(userName);
         if (removed) {
             userThreads.remove(aUser);
@@ -56,11 +60,11 @@ public class Server {
         }
     }
 
-    Set<String> getUserNames() {
+    public Set<String> getUserNames() {
         return this.userNames;
     }
 
-    boolean hasUsers() {
+    public boolean hasUsers() {
         return !this.userNames.isEmpty();
     }
 
