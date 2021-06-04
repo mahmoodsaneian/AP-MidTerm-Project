@@ -1,5 +1,7 @@
 package com.company.server;
 
+import com.company.characters.Role;
+
 import java.io.*;
 import java.net.*;
 
@@ -7,28 +9,80 @@ public class PlayerThread extends Thread {
     private Socket socket;
     private Server server;
     private PrintWriter writer;
+    private BufferedReader reader;
+    private String userName;
 
+    /**
+     * @param socket
+     * @param server
+     */
     public PlayerThread(Socket socket, Server server) {
         this.socket = socket;
         this.server = server;
-    }
-
-    public void run() {
         try {
             InputStream input = socket.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+            reader = new BufferedReader(new InputStreamReader(input));
 
             OutputStream output = socket.getOutputStream();
             writer = new PrintWriter(output, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     */
+    public void run() {
+        try {
+//            InputStream input = socket.getInputStream();
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
             printUsers();
 
-            String userName = reader.readLine();
+            userName = reader.readLine();
             server.addUserName(userName);
 
             String serverMessage = "\n New player connected: " + userName;
             server.broadcast(serverMessage, this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
+    /**
+     *
+     */
+    void printUsers() {
+        if (server.hasUsers()) {
+            writer.println("\n exist players: " + server.getUserNames());
+        } else {
+            writer.println("\n No other players connected");
+        }
+    }
+
+    /**
+     * @param message
+     */
+    void sendMessage(String message) {
+        writer.println(message);
+    }
+
+    /**
+     *
+     */
+    public void chatRoom() {
+        try {
+//            InputStream input = socket.getInputStream();
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+//            OutputStream output = socket.getOutputStream();
+//            writer = new PrintWriter(output, true);
+
+
+//            String serverMessage = "\n New player connected: " + userName;
+//            server.broadcast(serverMessage, this);
+            String serverMessage;
             String clientMessage;
 
             do {
@@ -50,16 +104,16 @@ public class PlayerThread extends Thread {
         }
     }
 
-
-    void printUsers() {
-        if (server.hasUsers()) {
-            writer.println("\n exist players: " + server.getUserNames());
-        } else {
-            writer.println("\n No other players connected");
+    /**
+     * @param role
+     */
+    public void sendRoleToPlayer(Role role) {
+        try {
+            System.out.println(role.getRoleDescription());
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            objectOutputStream.writeObject(role);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }
-
-    void sendMessage(String message) {
-        writer.println(message);
     }
 }

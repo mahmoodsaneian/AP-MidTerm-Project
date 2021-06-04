@@ -1,4 +1,7 @@
 package com.company.server;
+
+import com.company.characters.Role;
+
 import java.io.*;
 import java.net.*;
 
@@ -21,14 +24,33 @@ public class PlayerReadMessage extends Thread {
     }
 
     public void run() {
-        while (true) {
-            try {
-                String response = reader.readLine();
-                System.out.println( response);
-            } catch (IOException ex) {
-                System.out.println("connected end");
-                break;
-            }
+       try {
+           while (true) {
+               String response = reader.readLine();
+               if (response.equals("let's to start game")) {
+                   System.out.println("Capacity was completed. The game started");
+                   break;
+               }
+               System.out.println(response);
+           }
+       }catch (IOException e){
+           e.printStackTrace();
+       }
+    }
+
+    public void chatRoom(String message) {
+        System.out.println(message);
+    }
+
+    public void getRoleFromServer() {
+        try {
+            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+            Role role = (Role) objectInputStream.readObject();
+            palyer.setRole(role);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException c) {
+            c.printStackTrace();
         }
     }
 }

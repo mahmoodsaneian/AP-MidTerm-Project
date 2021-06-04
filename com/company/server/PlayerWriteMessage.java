@@ -9,12 +9,11 @@ public class PlayerWriteMessage extends Thread {
     private PrintWriter writer;
     private Socket socket;
     private PlayerMafia palyer;
-    private Scanner scanner;
+
 
     public PlayerWriteMessage(Socket socket, PlayerMafia player) {
         this.socket = socket;
         this.palyer = player;
-        scanner = new Scanner(System.in);
 
         try {
             OutputStream output = socket.getOutputStream();
@@ -26,10 +25,17 @@ public class PlayerWriteMessage extends Thread {
     }
 
     public void run() {
+        //send username to server
+        writer.println(palyer.getName());
+        System.out.println("Wait for all the players to express themselves and then start the game");
+    }
+
+
+    public void chatRoom(){
+        Scanner scanner =  new Scanner(System.in);
 
         String text;
 
-        System.out.println("so , you can send messages to other users. please write [bye] to quit");
         do {
             System.out.print("[ "+palyer.getName()+" ] : ");
             text = scanner.nextLine();
@@ -44,10 +50,5 @@ public class PlayerWriteMessage extends Thread {
             System.out.println("Error writing to server: " + ex.getMessage());
         }
     }
-
-    public void setUserName(String userName){
-        writer.println(userName);
-    }
-
 }
 
