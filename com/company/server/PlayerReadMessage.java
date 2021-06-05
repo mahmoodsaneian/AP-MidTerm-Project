@@ -36,6 +36,7 @@ public class PlayerReadMessage extends Thread {
        }catch (IOException e){
            e.printStackTrace();
        }
+       getRoleFromServer();
     }
 
     public void chatRoom(String message) {
@@ -47,6 +48,7 @@ public class PlayerReadMessage extends Thread {
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
             Role role = (Role) objectInputStream.readObject();
             palyer.setRole(role);
+            System.out.println(palyer.getRole().getRoleDescription());
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException c) {

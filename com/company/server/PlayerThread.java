@@ -35,9 +35,6 @@ public class PlayerThread extends Thread {
      */
     public void run() {
         try {
-//            InputStream input = socket.getInputStream();
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
             printUsers();
 
             userName = reader.readLine();
@@ -73,16 +70,7 @@ public class PlayerThread extends Thread {
      */
     public void chatRoom() {
         try {
-//            InputStream input = socket.getInputStream();
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
-//            OutputStream output = socket.getOutputStream();
-//            writer = new PrintWriter(output, true);
-
-
-//            String serverMessage = "\n New player connected: " + userName;
-//            server.broadcast(serverMessage, this);
-            String serverMessage;
+           String serverMessage;
             String clientMessage;
 
             do {
@@ -109,9 +97,9 @@ public class PlayerThread extends Thread {
      */
     public void sendRoleToPlayer(Role role) {
         try {
-            System.out.println(role.getRoleDescription());
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             objectOutputStream.writeObject(role);
+            System.out.println(role.getRoleDescription());
         } catch (IOException e) {
             e.printStackTrace();
         }

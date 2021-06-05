@@ -1,5 +1,6 @@
 package com.company.server;
 
+import com.company.SharedData;
 import com.company.characters.Role;
 
 import java.net.*;
@@ -38,6 +39,12 @@ public class PlayerMafia {
 
             writeMessage.start();
             readMessage.start();
+            try {
+                readMessage.join();
+            }catch (InterruptedException i){
+                i.printStackTrace();
+            }
+            readMessage.getRoleFromServer();
         } catch (UnknownHostException ex) {
             System.out.println("Server not found: " + ex.getMessage());
             ex.printStackTrace();
@@ -56,6 +63,10 @@ public class PlayerMafia {
         return this.name;
     }
 
+    public Role getRole() {
+        return role;
+    }
+
     /**
      *
      * @param name
@@ -64,10 +75,7 @@ public class PlayerMafia {
         this.name = name;
     }
 
-    /**
-     *
-     * @param user
-     */
+
     public static void storeUserNames(String user){
        try (FileWriter writer = new FileWriter("users.txt",true);
        BufferedWriter bufferedWriter = new BufferedWriter(writer)){
@@ -78,11 +86,7 @@ public class PlayerMafia {
        }
     }
 
-    /**
-     *
-     * @param user
-     * @return
-     */
+
     public static boolean checkUserName(String user){
         try (FileReader fileReader = new FileReader("users.txt");
         BufferedReader reader = new BufferedReader(fileReader)){
@@ -100,10 +104,6 @@ public class PlayerMafia {
         return true;
     }
 
-    public void manageMethods(){
-
-    }
-
     public void setRole(Role role) {
         this.role = role;
     }
@@ -112,8 +112,15 @@ public class PlayerMafia {
     public static void main(String args[]) {
         Scanner scanner = new Scanner(System.in);
         //get port of game from user
-        System.out.println("enter port of game that you want connected to it");
-        int portNumber = scanner.nextInt();
+        int portNumber;
+        while (true){
+            System.out.println("enter port of game that you want connected to it");
+            portNumber = scanner.nextInt();
+            if (portNumber == 6000)
+                break;
+            else
+                System.out.println("invalid port number");
+        }
 
         //We check that the username is not duplicate
         boolean condition = false;
@@ -127,7 +134,7 @@ public class PlayerMafia {
         }
         storeUserNames(user);
 
-        //create an object for player
+//        create an object for player
         PlayerMafia playerMafia = new PlayerMafia(portNumber, user);
         playerMafia.execute();
     }

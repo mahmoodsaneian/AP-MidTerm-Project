@@ -1,6 +1,7 @@
 package com.company.server;
 
 import com.company.Game.CreateRoles;
+import com.company.SharedData;
 import com.company.characters.Role;
 
 import java.io.*;
@@ -30,21 +31,29 @@ public class Server {
             System.out.println("game is start on port : 6000 \n" +
                     " Wait for all players to connect");
 
+            //create roles of game
+            CreateRoles createRoles = new CreateRoles();
+            ArrayList<Role> roles = createRoles.getRoles();
+
             //Accept players
-            while (counterClient < 10) {
+            while (counterClient < 3) {
                 Socket socket = serverSocket.accept();
                 System.out.println("New player connected");
 
-                PlayerThread newUser = new PlayerThread(socket, this);
                 counterClient++;
                 System.out.println("number of player in game : "+counterClient);
+                //create a thread for player
+                PlayerThread newUser = new PlayerThread(socket, this);
                 userThreads.add(newUser);
                 newUser.start();
             }
             sendMessageToAll("let's to start game");
-            //create roles of game
-            CreateRoles createRoles = new CreateRoles();
-            ArrayList<Role> roles = createRoles.getRoles();
+            Random random = new Random();
+            for (PlayerThread playerThread : userThreads){
+                Role role = roles.get(random.nextInt(roles.size()));
+                roles.remove(role);
+                playerThread.sendRoleToPlayer(role);
+            }
         } catch (IOException ex) {
             System.out.println("Error in the server: " + ex.getMessage());
             ex.printStackTrace();
