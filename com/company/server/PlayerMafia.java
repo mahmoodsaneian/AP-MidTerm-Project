@@ -41,9 +41,21 @@ public class PlayerMafia {
                     break;
                 System.out.println(serverMessage);
             }
+            //get role
             String role1 = reader.readLine();
             role = ManageData.getRole(role1);
-            System.out.println(role.getRoleDescription());
+//            System.out.println(role.getRoleDescription());
+            //print role description
+            System.out.println("the first night of the game started\n"+
+                    "your role in the game : "+role.getName()+"\n"+
+                    "your role description : "+role.getRoleDescription());
+            while (!serverMessage.equals("finish first night")){
+                serverMessage = reader.readLine();
+                if (serverMessage.equals("finish first night"))
+                    break;
+                System.out.println(serverMessage);
+            }
+            System.out.println("first night is end.");
         } catch (UnknownHostException ex) {
             System.out.println("Server not found: " + ex.getMessage());
             ex.printStackTrace();

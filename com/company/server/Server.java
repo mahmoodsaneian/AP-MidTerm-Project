@@ -1,6 +1,7 @@
 package com.company.server;
 
 import com.company.Game.CreateRoles;
+import com.company.Game.GameLoop;
 import com.company.Game.ManageData;
 
 import java.io.*;
@@ -48,6 +49,7 @@ public class Server {
                 newUser.start();
                 newUser.join();
             }
+            sendMessageToAll("Capacity was completed. The game started.");
             sendMessageToAll("finish");
             //send role to player
             for (PlayerHandler handler : userThreads) {
@@ -55,7 +57,10 @@ public class Server {
                 handler.sendMessage(role);
                 game.put(role,handler.getUserName());
             }
-            System.out.println(game);
+            GameLoop gameLoop = new GameLoop(this, game);
+//            gameLoop.print();
+            gameLoop.firstNight();
+            sendMessageToAll("finish first night");
         } catch (IOException ex) {
             System.out.println("Error in the server: " + ex.getMessage());
             ex.printStackTrace();
@@ -64,6 +69,7 @@ public class Server {
         }
     }
 
+    //For chatroom
     public void broadcast(String message, PlayerHandler excludeUser) {
         for (PlayerHandler aUser : userThreads) {
             if (aUser != excludeUser)
@@ -103,6 +109,16 @@ public class Server {
         String role = roles.get(random.nextInt(roles.size()));
         roles.remove(role);
         return role;
+    }
+
+
+    public void sendMessageToSpecifiecPlayer(String playerName, String message){
+        for (PlayerHandler playerHandler : userThreads){
+            if (playerHandler.getUserName().equals(playerName)){
+                playerHandler.sendMessage(message);
+                break;
+            }
+        }
     }
 
     public static void main(String args[]) {
