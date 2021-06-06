@@ -1,4 +1,6 @@
-package com.company.server;
+package com.company.server.chatroom;
+
+import com.company.server.PlayerMafia;
 
 import java.io.*;
 import java.net.*;
@@ -11,31 +13,23 @@ public class PlayerWriteMessage extends Thread {
     private PlayerMafia palyer;
 
 
-    public PlayerWriteMessage(Socket socket, PlayerMafia player) {
+    public PlayerWriteMessage(Socket socket, PlayerMafia player, PrintWriter writer) {
         this.socket = socket;
         this.palyer = player;
-
-        try {
-            OutputStream output = socket.getOutputStream();
-            writer = new PrintWriter(output, true);
-        } catch (IOException ex) {
-            System.out.println("Error getting output stream: " + ex.getMessage());
-            ex.printStackTrace();
-        }
+        this.writer = writer;
+//        try {
+//            OutputStream output = socket.getOutputStream();
+//            writer = new PrintWriter(output, true);
+//        } catch (IOException ex) {
+//            System.out.println("Error getting output stream: " + ex.getMessage());
+//            ex.printStackTrace();
+//        }
     }
 
     public void run() {
-        //send username to server
-        writer.println(palyer.getName());
-        System.out.println("Wait for all the players to express themselves and then start the game");
-    }
-
-
-    public void chatRoom(){
         Scanner scanner =  new Scanner(System.in);
-
         String text;
-
+        System.out.println("Chat room opened");
         do {
             System.out.print("[ "+palyer.getName()+" ] : ");
             text = scanner.nextLine();
@@ -50,5 +44,6 @@ public class PlayerWriteMessage extends Thread {
             System.out.println("Error writing to server: " + ex.getMessage());
         }
     }
+
 }
 

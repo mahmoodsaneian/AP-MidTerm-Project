@@ -6,10 +6,13 @@ import java.util.ArrayList;
 
 public class CreateRoles {
     private ArrayList<Role> roles;
+    private ArrayList<String> nameRoles;
 
     public CreateRoles() {
         roles = new ArrayList<Role>();
+        nameRoles = new ArrayList<String>();
         createRoles();
+        addRolesNames();
     }
 
     public void createRoles(){
@@ -38,5 +41,22 @@ public class CreateRoles {
 
     public ArrayList<Role> getRoles() {
         return roles;
+    }
+
+    public void addRolesNames(){
+        nameRoles.add("godFather");
+        nameRoles.add("Doctor lector");
+        nameRoles.add("ordinary Mafia");
+        nameRoles.add("City doctor");
+        nameRoles.add("Detective");
+        nameRoles.add("Sniper");
+        nameRoles.add("Ordinary Citizen");
+        nameRoles.add("Mayor");
+        nameRoles.add("Psychologist");
+        nameRoles.add("Die hard");
+    }
+
+    public ArrayList<String> getNameRoles() {
+        return nameRoles;
     }
 }

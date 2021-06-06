@@ -1,8 +1,7 @@
 package com.company.server;
 
 import com.company.Game.CreateRoles;
-import com.company.SharedData;
-import com.company.characters.Role;
+import com.company.Game.ManageData;
 
 import java.io.*;
 import java.net.*;
@@ -10,16 +9,20 @@ import java.util.*;
 
 public class Server {
     private Set<String> userNames;
-    private Set<PlayerThread> userThreads;
+    private Set<PlayerHandler> userThreads;
     private int counterClient;
+    private ArrayList<String> roles;
+    private HashMap<String,String> game;
 
     /**
      *
      */
     public Server() {
         userNames = new HashSet<String>();
-        userThreads = new HashSet<PlayerThread>();
+        userThreads = new HashSet<PlayerHandler>();
         counterClient = 0;
+        roles = new CreateRoles().getNameRoles();
+        game = new HashMap<String, String>();
     }
 
     /**
@@ -31,61 +34,49 @@ public class Server {
             System.out.println("game is start on port : 6000 \n" +
                     " Wait for all players to connect");
 
-            //create roles of game
-            CreateRoles createRoles = new CreateRoles();
-            ArrayList<Role> roles = createRoles.getRoles();
-
             //Accept players
             while (counterClient < 3) {
                 Socket socket = serverSocket.accept();
                 System.out.println("New player connected");
 
                 counterClient++;
-                System.out.println("number of player in game : "+counterClient);
+                System.out.println("number of player in game : " + counterClient);
+
                 //create a thread for player
-                PlayerThread newUser = new PlayerThread(socket, this);
+                PlayerHandler newUser = new PlayerHandler(socket, this);
                 userThreads.add(newUser);
                 newUser.start();
+                newUser.join();
             }
-            sendMessageToAll("let's to start game");
-            Random random = new Random();
-            for (PlayerThread playerThread : userThreads){
-                Role role = roles.get(random.nextInt(roles.size()));
-                roles.remove(role);
-                playerThread.sendRoleToPlayer(role);
+            sendMessageToAll("finish");
+            //send role to player
+            for (PlayerHandler handler : userThreads) {
+                String role = getRandomRole();
+                handler.sendMessage(role);
+                game.put(role,handler.getUserName());
             }
+            System.out.println(game);
         } catch (IOException ex) {
             System.out.println("Error in the server: " + ex.getMessage());
             ex.printStackTrace();
+        } catch (InterruptedException i) {
+            i.printStackTrace();
         }
     }
 
-    /**
-     *
-     * @param message
-     * @param excludeUser
-     */
-    public void broadcast(String message, PlayerThread excludeUser) {
-        for (PlayerThread aUser : userThreads) {
+    public void broadcast(String message, PlayerHandler excludeUser) {
+        for (PlayerHandler aUser : userThreads) {
             if (aUser != excludeUser)
                 aUser.sendMessage(message);
         }
     }
 
-    /**
-     *
-     * @param userName
-     */
     public void addUserName(String userName) {
         userNames.add(userName);
+        ManageData.addUsername(userName);
     }
 
-    /**
-     *
-     * @param userName
-     * @param aUser
-     */
-    public void removeUser(String userName, PlayerThread aUser) {
+    public void removeUser(String userName, PlayerHandler aUser) {
         boolean removed = userNames.remove(userName);
         if (removed) {
             userThreads.remove(aUser);
@@ -93,32 +84,26 @@ public class Server {
         }
     }
 
-    /**
-     *
-     * @return
-     */
     public Set<String> getUserNames() {
         return this.userNames;
     }
 
-    /**
-     *
-     * @return
-     */
     public boolean hasUsers() {
         return !this.userNames.isEmpty();
     }
 
-    /**
-     *
-     * @param message
-     */
-    public void sendMessageToAll(String message){
-        for (PlayerThread playerThread : userThreads){
+    public void sendMessageToAll(String message) {
+        for (PlayerHandler playerThread : userThreads) {
             playerThread.sendMessage(message);
         }
     }
 
+    public String getRandomRole() {
+        Random random = new Random();
+        String role = roles.get(random.nextInt(roles.size()));
+        roles.remove(role);
+        return role;
+    }
 
     public static void main(String args[]) {
         Server server = new Server();

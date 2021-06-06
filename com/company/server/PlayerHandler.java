@@ -5,18 +5,14 @@ import com.company.characters.Role;
 import java.io.*;
 import java.net.*;
 
-public class PlayerThread extends Thread {
+public class PlayerHandler extends Thread {
     private Socket socket;
     private Server server;
     private PrintWriter writer;
     private BufferedReader reader;
     private String userName;
 
-    /**
-     * @param socket
-     * @param server
-     */
-    public PlayerThread(Socket socket, Server server) {
+    public PlayerHandler(Socket socket, Server server) {
         this.socket = socket;
         this.server = server;
         try {
@@ -30,9 +26,6 @@ public class PlayerThread extends Thread {
         }
     }
 
-    /**
-     *
-     */
     public void run() {
         try {
             printUsers();
@@ -47,9 +40,6 @@ public class PlayerThread extends Thread {
         }
     }
 
-    /**
-     *
-     */
     void printUsers() {
         if (server.hasUsers()) {
             writer.println("\n exist players: " + server.getUserNames());
@@ -58,50 +48,26 @@ public class PlayerThread extends Thread {
         }
     }
 
-    /**
-     * @param message
-     */
     void sendMessage(String message) {
         writer.println(message);
     }
 
-    /**
-     *
-     */
     public void chatRoom() {
         try {
-           String serverMessage;
+            String serverMessage;
             String clientMessage;
-
             do {
                 clientMessage = reader.readLine();
                 serverMessage = clientMessage;
                 server.broadcast(serverMessage, this);
-
             } while (!(clientMessage.endsWith("bye")));
-
-            server.removeUser(userName, this);
-            socket.close();
-
-            serverMessage = userName + " has quitted.";
-            server.broadcast(serverMessage, this);
-
         } catch (IOException ex) {
             System.out.println("Error in UserThread: " + ex.getMessage());
             ex.printStackTrace();
         }
     }
 
-    /**
-     * @param role
-     */
-    public void sendRoleToPlayer(Role role) {
-        try {
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            objectOutputStream.writeObject(role);
-            System.out.println(role.getRoleDescription());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public String getUserName() {
+        return userName;
     }
 }
