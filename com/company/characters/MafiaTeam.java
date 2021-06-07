@@ -9,11 +9,4 @@ public  class MafiaTeam extends Role {
         super(name, roleDescription, inquiry, canSpeak, alive);
     }
 
-    public String killCitizen(){
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("Which citizen do you want to kill?");
-        String kill = scanner.nextLine();
-        return kill;
-    }
 }

@@ -47,4 +47,12 @@ public  class Role implements Serializable {
     public boolean isAlive() {
         return alive;
     }
+
+    public void setCanSpeak(boolean canSpeak) {
+        this.canSpeak = canSpeak;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
+    }
 }

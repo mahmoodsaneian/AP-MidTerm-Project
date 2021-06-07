@@ -26,6 +26,7 @@ public class GameLoop {
             String roleOwner = nameRolesAndUsernames.get(name);
             rolesAndUsernames.put(role, roleOwner);
         }
+        ManageData.setRolesAndNames(rolesAndUsernames);
     }
 
     public HashMap<Role, String> getRolesAndUsernames() {
@@ -91,4 +92,13 @@ public class GameLoop {
 //            System.out.println(rolesAndUsernames.get(role) + " : "+role.getName());
 //        }
 //    }
+
+    public void nightGame(){
+        String name = null;
+        //Mafia team
+        Role godFather     = ManageData.getRole("godFather");
+        Role ordinaryMafia = ManageData.getRole("ordinary Mafia");
+        Role doctorLector  = ManageData.getRole("Doctor lector");
+
+    }
 }

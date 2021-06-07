@@ -1,6 +1,7 @@
 package com.company.server;
 
 import com.company.Game.ManageData;
+import com.company.Game.NightGame;
 import com.company.characters.Role;
 import com.company.server.chatroom.PlayerReadMessage;
 import com.company.server.chatroom.PlayerWriteMessage;
@@ -25,37 +26,62 @@ public class PlayerMafia {
 
     public void execute() {
         try {
+            //connect to the server
             socket = new Socket("127.0.0.1", port);
             System.out.println("welcome. you entered the game.\n" +
                     "Wait for all the players to express themselves and then start the game");
-
+            //open reader & writer on the socket
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(), true);
-
+            //create an object from "Scanner" class to get input from player
             Scanner scanner = new Scanner(System.in);
+
             String serverMessage = "";
+            //send username to server
             writer.println(name);
+            //before start game.The player will be notified if a new player enters the game.
             while (!serverMessage.equals("finish")) {
                 serverMessage = reader.readLine();
                 if (serverMessage.equals("finish"))
                     break;
                 System.out.println(serverMessage);
             }
-            //get role
+            //All players connected to the game.
+            //We ask the players if they are ready to start the game or not?
+            serverMessage = reader.readLine();
+            String answer = "";
+            while (!answer.equals("ready")){
+                System.out.println(serverMessage);
+                answer = scanner.nextLine();
+                if (answer.equals("ready"))
+                    break;
+            }
+            writer.println(answer);
+            //get role from server
             String role1 = reader.readLine();
             role = ManageData.getRole(role1);
-//            System.out.println(role.getRoleDescription());
-            //print role description
+            //first night of game started & print role description.
             System.out.println("the first night of the game started\n"+
                     "your role in the game : "+role.getName()+"\n"+
                     "your role description : "+role.getRoleDescription());
+
             while (!serverMessage.equals("finish first night")){
                 serverMessage = reader.readLine();
                 if (serverMessage.equals("finish first night"))
                     break;
                 System.out.println(serverMessage);
             }
-            System.out.println("first night is end.");
+            //end first night
+            System.out.println("The first night of the game is over");
+            //night of game
+            System.out.println("night started");
+            while (!serverMessage.equals("night finished")){
+                serverMessage = reader.readLine();
+                if (serverMessage.equals("night finished")){
+                    System.out.println(serverMessage);
+                    break;
+                }
+            }
         } catch (UnknownHostException ex) {
             System.out.println("Server not found: " + ex.getMessage());
             ex.printStackTrace();
@@ -91,6 +117,10 @@ public class PlayerMafia {
     }
 
 
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
     public static boolean checkUserName(String user) {
         try (FileReader fileReader = new FileReader("users.txt");
              BufferedReader reader = new BufferedReader(fileReader)) {
@@ -108,11 +138,6 @@ public class PlayerMafia {
         return true;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-
     public static void main(String args[]) {
         Scanner scanner = new Scanner(System.in);
         //get port of game from user
@@ -125,7 +150,6 @@ public class PlayerMafia {
             else
                 System.out.println("invalid port number");
         }
-
         //We check that the username is not duplicate
         boolean condition = false;
         String user = "";
@@ -137,8 +161,7 @@ public class PlayerMafia {
                 break;
         }
         storeUserNames(user);
-
-//        create an object for player
+        //create an object for player
         PlayerMafia playerMafia = new PlayerMafia(portNumber, user);
         playerMafia.execute();
     }
@@ -151,4 +174,34 @@ public class PlayerMafia {
         readMessage.start();
     }
 
+    public void manageNightGame(){
+        String answer = "";
+        switch (role.getName()){
+            case "godFather":
+                NightGame.godFather();
+                break;
+            case "Doctor lector":
+                NightGame.lectorAndOrdinaryMafia();
+                NightGame.doctor("Mafia");
+                break;
+            case "ordinary Mafia":
+                NightGame.lectorAndOrdinaryMafia();
+                break;
+            case "City doctor":
+                NightGame.doctor("Citizen");
+                break;
+            case "Detective":
+                NightGame.detective();
+                break;
+            case "Sniper":
+                NightGame.sniper();
+                break;
+            case "Psychologist":
+                NightGame.psychologist();
+                break;
+            case "Die hard":
+                NightGame.dieHard();
+                break;
+        }
+    }
 }

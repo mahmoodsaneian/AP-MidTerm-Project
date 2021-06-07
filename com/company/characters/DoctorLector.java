@@ -15,12 +15,4 @@ public class DoctorLector extends MafiaTeam {
     public int getSaveYourSelf() {
         return saveYourSelf;
     }
-
-//    @Override
-//    public String act() {
-//        Scanner scanner = new Scanner(System.in);
-//        System.out.println("Who do you want to save?");
-//        String save = scanner.nextLine();
-//        return save;
-//    }
 }

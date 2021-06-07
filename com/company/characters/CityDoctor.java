@@ -15,20 +15,4 @@ public class CityDoctor extends CitizenTeam{
         return saveYourSelf;
     }
 
-//    @Override
-//    public String act() {
-//        Scanner scanner = new Scanner(System.in);
-//        String save = "";
-//        while (true) {
-//            System.out.println("Who do you want to save?");
-//            if (saveYourSelf == 1)
-//                System.out.println("You can't save your self");
-//            save = scanner.nextLine();
-//            if (!(save.equals(this.getName())))
-//                break;
-//            else
-//                System.out.println("wrong input please try again");
-//        }
-//        return save;
-//    }
 }

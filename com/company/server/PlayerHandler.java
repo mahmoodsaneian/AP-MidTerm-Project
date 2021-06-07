@@ -70,4 +70,14 @@ public class PlayerHandler extends Thread {
     public String getUserName() {
         return userName;
     }
+
+    public String getMessageFromPlayer(){
+        String clientMessage = "";
+        try {
+            clientMessage = reader.readLine();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        return clientMessage;
+    }
 }

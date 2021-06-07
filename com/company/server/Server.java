@@ -11,30 +11,23 @@ import java.util.*;
 public class Server {
     private Set<String> userNames;
     private Set<PlayerHandler> userThreads;
-    private int counterClient;
     private ArrayList<String> roles;
-    private HashMap<String,String> game;
+    private HashMap<String,String> rolesAndUsernames;
+    private int counterClient;
 
-    /**
-     *
-     */
     public Server() {
-        userNames = new HashSet<String>();
-        userThreads = new HashSet<PlayerHandler>();
-        counterClient = 0;
-        roles = new CreateRoles().getNameRoles();
-        game = new HashMap<String, String>();
+        userNames         = new HashSet<String>();
+        userThreads       = new HashSet<PlayerHandler>();
+        roles             = new CreateRoles().getNameRoles();
+        rolesAndUsernames = new HashMap<String, String>();
+        counterClient     = 0;
     }
 
-    /**
-     *
-     */
     public void execute() {
-        try (ServerSocket serverSocket = new ServerSocket(6000)) {
 
+        try (ServerSocket serverSocket = new ServerSocket(6000)) {
             System.out.println("game is start on port : 6000 \n" +
                     " Wait for all players to connect");
-
             //Accept players
             while (counterClient < 3) {
                 Socket socket = serverSocket.accept();
@@ -49,18 +42,37 @@ public class Server {
                 newUser.start();
                 newUser.join();
             }
+            //All players are connected. We start the game
             sendMessageToAll("Capacity was completed. The game started.");
             sendMessageToAll("finish");
+            //Declaration of readiness.get answer from user.
+            sendMessageToAll("Are you ready to start the game?.please type [ready]");
+            ArrayList<String> answers = new ArrayList<String>();
+            for (PlayerHandler handler : userThreads){
+                String playerAnswer = handler.getMessageFromPlayer();
+                answers.add(playerAnswer);
+            }
+            //Check Answers
+            for (String playerAnswer : answers){
+                if (!playerAnswer.equals("ready"))
+                    System.out.println("wait.a palyer not ready");
+            }
             //send role to player
             for (PlayerHandler handler : userThreads) {
                 String role = getRandomRole();
                 handler.sendMessage(role);
-                game.put(role,handler.getUserName());
+                rolesAndUsernames.put(role,handler.getUserName());
             }
-            GameLoop gameLoop = new GameLoop(this, game);
-//            gameLoop.print();
+            //start game.
+            GameLoop gameLoop = new GameLoop(this, rolesAndUsernames);
+            //start first night.
             gameLoop.firstNight();
+            //finish first night
             sendMessageToAll("finish first night");
+            //start night game
+            gameLoop.nightGame();
+            //finish nigh game
+            sendMessageToAll("night finished");
         } catch (IOException ex) {
             System.out.println("Error in the server: " + ex.getMessage());
             ex.printStackTrace();
@@ -119,6 +131,17 @@ public class Server {
                 break;
             }
         }
+    }
+
+    public String getMessageFromSpecifiecPlayer(String playerName){
+        String message = "";
+        for (PlayerHandler handler : userThreads){
+            if (handler.getUserName().equals(playerName)){
+                message = handler.getMessageFromPlayer();
+                break;
+            }
+        }
+        return message;
     }
 
     public static void main(String args[]) {
