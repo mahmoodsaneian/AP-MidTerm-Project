@@ -35,7 +35,7 @@ public class PlayerMafia {
             writer = new PrintWriter(socket.getOutputStream(), true);
             //create an object from "Scanner" class to get input from player
             Scanner scanner = new Scanner(System.in);
-
+            //this string ,it is messages that server send to player.
             String serverMessage = "";
             //send username to server
             writer.println(name);
@@ -50,7 +50,7 @@ public class PlayerMafia {
             //We ask the players if they are ready to start the game or not?
             serverMessage = reader.readLine();
             String answer = "";
-            while (!answer.equals("ready")){
+            while (!answer.equals("ready")) {
                 System.out.println(serverMessage);
                 answer = scanner.nextLine();
                 if (answer.equals("ready"))
@@ -61,33 +61,66 @@ public class PlayerMafia {
             String role1 = reader.readLine();
             role = ManageData.getRole(role1);
             //first night of game started & print role description.
-            System.out.println("the first night of the game started\n"+
-                    "your role in the game : "+role.getName()+"\n"+
-                    "your role description : "+role.getRoleDescription());
+            System.out.println("the first night of the game started\n" +
+                    "your role in the game : " + role.getName() + "\n" +
+                    "your role description : " + role.getRoleDescription());
 
-            while (!serverMessage.equals("finish first night")){
+            while (!serverMessage.equals("finish first night")) {
                 serverMessage = reader.readLine();
-                if (serverMessage.equals("finish first night"))
+                if (serverMessage.equals("finish first night")){
+                    Thread.sleep(8000);
                     break;
+                }
                 System.out.println(serverMessage);
             }
             //end first night
             System.out.println("The first night of the game is over");
-            //night of game
-            System.out.println("night started");
-            while (!serverMessage.equals("night finished")){
+            //start day
+            while (true){
                 serverMessage = reader.readLine();
-                if (serverMessage.equals("night finished")){
-                    System.out.println(serverMessage);
+                System.out.println(serverMessage);
+                if (serverMessage.equals("start of the day phase"))
+                    chatRoom();
+                if (serverMessage.equals("end day"))
                     break;
-                }
             }
+//            //night of game
+//            while (!serverMessage.equals("night finished")) {
+//                serverMessage = reader.readLine();
+//                if (serverMessage.equals("start your act")) {
+//                    manageNightGame();
+//                }
+//                if (serverMessage.equals("night finished")) {
+//                    break;
+//                }
+//                if (!serverMessage.equals("start your act"))
+//                    System.out.println(serverMessage);
+//            }
+//            //voting
+//            while (!serverMessage.equals("finish voting")){
+//                serverMessage = reader.readLine();
+//                String vote = role.getVote();
+//                writer.println(vote);
+//                if (serverMessage.equals("finish voting"))
+//                    break;
+//            }
+//            System.out.println(serverMessage);
+            //question from mayor
+//            if (role.getName().equals("Mayor")){
+//                serverMessage = reader.readLine();
+//                System.out.println(serverMessage);
+//                System.out.println("Do you want to cancel the vote?please enter yes or no");
+//                answer = scanner.nextLine();
+//                writer.println(answer);
+//            }
         } catch (UnknownHostException ex) {
             System.out.println("Server not found: " + ex.getMessage());
             ex.printStackTrace();
         } catch (IOException ex) {
             System.out.println("I/O Error: " + ex.getMessage());
             ex.printStackTrace();
+        }catch (InterruptedException w){
+            w.printStackTrace();
         }
 
     }
@@ -167,41 +200,46 @@ public class PlayerMafia {
     }
 
     public void chatRoom() {
-        PlayerWriteMessage writeMessage = new PlayerWriteMessage(socket, this, writer);
-        PlayerReadMessage readMessage = new PlayerReadMessage(socket, this, reader);
-
+        PlayerWriteMessage writeMessage = new PlayerWriteMessage(socket, this,writer);
+        PlayerReadMessage readMessage = new PlayerReadMessage(socket, this,reader);
         writeMessage.start();
         readMessage.start();
     }
 
-    public void manageNightGame(){
-        String answer = "";
-        switch (role.getName()){
-            case "godFather":
-                NightGame.godFather();
-                break;
-            case "Doctor lector":
-                NightGame.lectorAndOrdinaryMafia();
-                NightGame.doctor("Mafia");
-                break;
-            case "ordinary Mafia":
-                NightGame.lectorAndOrdinaryMafia();
-                break;
-            case "City doctor":
-                NightGame.doctor("Citizen");
-                break;
-            case "Detective":
-                NightGame.detective();
-                break;
-            case "Sniper":
-                NightGame.sniper();
-                break;
-            case "Psychologist":
-                NightGame.psychologist();
-                break;
-            case "Die hard":
-                NightGame.dieHard();
-                break;
-        }
+    public void manageNightGame() {
+//        NightGame nightGame = new NightGame(ManageData.getRolesAndNames());
+//        String answer = "";
+//        switch (role.getName()) {
+//            case "godFather":
+//                nightGame.godFather();
+//                break;
+//            case "Doctor lector":
+//                nightGame.lectorAndOrdinaryMafia();
+//                nightGame.doctor("Mafia");
+//                break;
+//            case "ordinary Mafia":
+//                nightGame.lectorAndOrdinaryMafia();
+//                break;
+//            case "City doctor":
+//                nightGame.doctor("Citizen");
+//                break;
+//            case "Detective":
+//                nightGame.detective();
+//                break;
+//            case "Sniper":
+//                nightGame.sniper();
+//                break;
+//            case "Psychologist":
+//                nightGame.psychologist();
+//                break;
+//            case "Die hard":
+//                answer = nightGame.dieHard();
+//                break;
+//            default:
+//                System.out.println("You have nothing to do at night. " +
+//                        "Wait for the night to end");
+//                break;
+//        }
+
     }
 }

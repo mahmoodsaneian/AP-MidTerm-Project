@@ -10,11 +10,22 @@ import java.util.Set;
 
 public class NightGame {
 
-    private static ArrayList<String> mafiavotes = new ArrayList<String>();
-    private static Scanner scanner = new Scanner(System.in);
-    private static HashMap<Role, String> rolesAndNames = ManageData.getRolesAndNames();
+    private ArrayList<String> mafiavotes;
+    private Scanner scanner;
+    private HashMap<Role, String> rolesAndNames;
 
-    public static void lectorAndOrdinaryMafia() {
+    public NightGame() {
+        scanner = new Scanner(System.in);
+        mafiavotes = new ArrayList<String>();
+    }
+
+    public NightGame(HashMap<Role, String> r) {
+        rolesAndNames = r;
+        scanner = new Scanner(System.in);
+        mafiavotes = new ArrayList<String>();
+    }
+
+    public void lectorAndOrdinaryMafia() {
         String kill = "";
         boolean truth = false;
         while (true) {
@@ -29,7 +40,7 @@ public class NightGame {
         mafiavotes.add(kill);
     }
 
-    public static void godFather() {
+    public void godFather() {
         String kill = "";
         boolean truth = false;
         while (true) {
@@ -55,7 +66,7 @@ public class NightGame {
         role.setAlive(false);
     }
 
-    public static void doctor(String teamName) {
+    public void doctor(String teamName) {
         String save = "";
         boolean truth = false;
         while (true) {
@@ -88,7 +99,7 @@ public class NightGame {
             role.setAlive(true);
     }
 
-    public static void detective() {
+    public void detective() {
         String inquiry = "";
         boolean truth = false;
         while (true) {
@@ -120,11 +131,11 @@ public class NightGame {
             System.out.println("No");
     }
 
-    public static void sniper() {
+    public void sniper() {
         String kill = "";
         String shoot = "";
         System.out.println("Do you want to use your role?");
-        String answer = scanner.nextLine();
+        String answer = scanner.next();
         if (answer.equals("yes")) {
             System.out.println("Who are you going to kill?");
             kill = scanner.nextLine();
@@ -155,10 +166,11 @@ public class NightGame {
                 }
             }
         }
-        role.setAlive(false);
+        if (role != null)
+            role.setAlive(false);
     }
 
-    public static void psychologist() {
+    public void psychologist() {
         System.out.println("Do you want to use your role?.write yes or no");
         String answer = scanner.nextLine();
         if (answer.equals("yes")) {
@@ -192,9 +204,9 @@ public class NightGame {
         }
     }
 
-    public static String dieHard() {
+    public String dieHard() {
         System.out.println("Do you want to use your role?.write yes or no");
-        String answer = scanner.nextLine();
+        String answer = scanner.next();
         DieHard dieHard = (DieHard) ManageData.getRole("Die hard");
         if (answer.equals("yes")) {
             int counter = dieHard.getCounterInquiry();
@@ -208,7 +220,7 @@ public class NightGame {
         return answer;
     }
 
-    private static boolean checkMafiaTeam(String name) {
+    private boolean checkMafiaTeam(String name) {
         Role godfather = ManageData.getRole("godFather");
         Role doctorLector = ManageData.getRole("Doctor lector");
         Role ordinaryMafia = ManageData.getRole("ordinary Mafia");
@@ -222,7 +234,7 @@ public class NightGame {
         return false;
     }
 
-    private static boolean checkCitizenTeam(String name) {
+    private boolean checkCitizenTeam(String name) {
         Role mayor = ManageData.getRole("Mayor");
         Role sniper = ManageData.getRole("Sniper");
         Role psychologist = ManageData.getRole("Psychologist");
@@ -248,19 +260,22 @@ public class NightGame {
         return false;
     }
 
-    public static HashMap<Role, String> updateGame() {
+    public HashMap<Role, String> updateGame() {
         HashMap<Role, String> deads = new HashMap<Role, String>();
 
         Set<Role> roles = rolesAndNames.keySet();
 
-        for (Role role : roles){
-            if (!(role.isAlive())){
+        for (Role role : roles) {
+            if (!(role.isAlive())) {
                 String name = rolesAndNames.get(role);
                 deads.put(role, name);
                 rolesAndNames.remove(role, name);
             }
         }
-
         return deads;
+    }
+
+    public HashMap<Role, String> getRolesAndNames() {
+        return rolesAndNames;
     }
 }

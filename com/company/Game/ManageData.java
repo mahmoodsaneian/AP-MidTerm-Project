@@ -36,4 +36,10 @@ public class ManageData {
     public static HashMap<Role, String> getRolesAndNames() {
         return rolesAndNames;
     }
+
+    public static ArrayList<String> getUsernames() {
+        return usernames;
+    }
+
+
 }

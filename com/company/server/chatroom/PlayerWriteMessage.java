@@ -13,7 +13,7 @@ public class PlayerWriteMessage extends Thread {
     private PlayerMafia palyer;
 
 
-    public PlayerWriteMessage(Socket socket, PlayerMafia player, PrintWriter writer) {
+    public PlayerWriteMessage(Socket socket, PlayerMafia player,PrintWriter writer) {
         this.socket = socket;
         this.palyer = player;
         this.writer = writer;
@@ -30,20 +30,18 @@ public class PlayerWriteMessage extends Thread {
         Scanner scanner =  new Scanner(System.in);
         String text;
         System.out.println("Chat room opened");
-        do {
-            System.out.print("[ "+palyer.getName()+" ] : ");
+
+        long start = System.currentTimeMillis();
+        long end = start + 300 *1000;
+
+        while (System.currentTimeMillis() < end) {
+            if (System.currentTimeMillis() == end)
+                break;
+            System.out.print("[ you ] : ");
             text = scanner.nextLine();
-            String clientMessage = "[ " + palyer.getName() + " ] :" + text;
-            writer.println(clientMessage);
-        } while (!(text.equals("bye")));
-
-        try {
-            socket.close();
-        } catch (IOException ex) {
-
-            System.out.println("Error writing to server: " + ex.getMessage());
+            text = "[ " + palyer.getName() + " ] :" + text;
+            writer.println(text);
         }
     }
-
 }
 

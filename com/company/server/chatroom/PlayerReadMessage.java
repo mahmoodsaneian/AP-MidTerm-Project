@@ -25,14 +25,19 @@ public class PlayerReadMessage extends Thread {
     }
 
     public void run() {
-       try {
-           while (true) {
-               String response = reader.readLine();
-               System.out.println(response);
-           }
-       }catch (IOException e){
-           e.printStackTrace();
-       }
+        long start = System.currentTimeMillis();
+        long end = start + 300 * 1000;
+
+        while (System.currentTimeMillis() < end) {
+            try {
+                if (System.currentTimeMillis() == end)
+                    break;
+                String response = reader.readLine();
+                System.out.println(response);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

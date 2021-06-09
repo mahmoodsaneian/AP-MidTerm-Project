@@ -35,6 +35,7 @@ public class PlayerHandler extends Thread {
 
             String serverMessage = "\n New player connected: " + userName;
             server.broadcast(serverMessage, this);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,21 +53,6 @@ public class PlayerHandler extends Thread {
         writer.println(message);
     }
 
-    public void chatRoom() {
-        try {
-            String serverMessage;
-            String clientMessage;
-            do {
-                clientMessage = reader.readLine();
-                serverMessage = clientMessage;
-                server.broadcast(serverMessage, this);
-            } while (!(clientMessage.endsWith("bye")));
-        } catch (IOException ex) {
-            System.out.println("Error in UserThread: " + ex.getMessage());
-            ex.printStackTrace();
-        }
-    }
-
     public String getUserName() {
         return userName;
     }
@@ -79,5 +65,17 @@ public class PlayerHandler extends Thread {
             e.printStackTrace();
         }
         return clientMessage;
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public PrintWriter getWriter() {
+        return writer;
+    }
+
+    public BufferedReader getReader() {
+        return reader;
     }
 }
