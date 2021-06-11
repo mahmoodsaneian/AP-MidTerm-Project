@@ -15,4 +15,7 @@ public class CityDoctor extends CitizenTeam{
         return saveYourSelf;
     }
 
+    public void increament(){
+        saveYourSelf++;
+    }
 }

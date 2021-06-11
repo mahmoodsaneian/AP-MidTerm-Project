@@ -32,11 +32,11 @@ public class ChatRoomHandler extends Thread{
             long end = start + 300 * 1000;
 
             while (System.currentTimeMillis() < end){
+                if (System.currentTimeMillis() == end)
+                    break;
                 String clientMessage = reader.readLine();
-                String serverMessage = "\n"+ clientMessage;
-                server.broadcast(serverMessage, this);
+                server.broadcast(clientMessage, this);
             }
-            sendMessage("end day");
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -44,5 +44,9 @@ public class ChatRoomHandler extends Thread{
 
     public void sendMessage(String message){
         writer.println(message);
+    }
+
+    public String getUsername() {
+        return username;
     }
 }

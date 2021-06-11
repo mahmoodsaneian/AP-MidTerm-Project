@@ -27,12 +27,14 @@ public class Server {
     }
 
     public void execute() {
-        //create server socket
+        //Create server socket
         try (ServerSocket serverSocket = new ServerSocket(6000)) {
+
             System.out.println("game is start on port : 6000 \n" +
                     " Wait for all players to connect");
+
             //Accept players
-            while (counterClient < 3) {
+            while (counterClient < 5) {
                 Socket socket = serverSocket.accept();
                 System.out.println("New player connected");
 
@@ -45,9 +47,11 @@ public class Server {
                 newUser.start();
                 newUser.join();
             }
+
             //All players are connected. We start the game
             sendMessageToAll("Capacity was completed. The game started.");
             sendMessageToAll("finish");
+
             //Declaration of readiness.get answer from user.
             sendMessageToAll("Are you ready to start the game?.please type [ready]");
             ArrayList<String> answers = new ArrayList<String>();
@@ -55,40 +59,49 @@ public class Server {
                 String playerAnswer = handler.getMessageFromPlayer();
                 answers.add(playerAnswer);
             }
-            //Check Answers
-            for (String playerAnswer : answers){
-                if (!playerAnswer.equals("ready"))
-                    System.out.println("wait.a palyer not ready");
-            }
+//            //Check Answers
+//            for (String playerAnswer : answers){
+//                if (!playerAnswer.equals("ready"))
+//                    System.out.println("wait.a palyer not ready");
+//            }
             //send role to player
             for (PlayerHandler handler : userThreads) {
                 String role = getRandomRole();
                 handler.sendMessage(role);
                 rolesAndUsernames.put(role,handler.getUserName());
             }
-            //start game.
+
+            //start game
             GameLoop gameLoop = new GameLoop(this, rolesAndUsernames);
+
             //start first night.
             gameLoop.firstNight();
+
             //finish first night
             sendMessageToAll("finish first night");
             Thread.sleep(8000);
-//            //start night game
-//            sendMessageToAll("The night has started and the game server will move forward. " +
-//                    "Wait until the night is completely over");
-//            gameLoop.nightGame();
-//            //finish nigh game
-//            sendMessageToAll("night finished");
+            //start night game
+            sendMessageToAll("The night has started and the game server will move forward. " +
+                    "Wait until the night is completely over");
+            gameLoop.nightGame();
+            //finish nigh game
+            sendMessageToAll("night finished");
+            Thread.sleep(8000);
+            gameLoop.updateGame();
+            System.out.println("deads : " +gameLoop.getDeads());
+            gameLoop.clearDeads();
+            System.out.println("deadsa : "+gameLoop.getDeads());
 //            //start voting
 //            sendMessageToAll("vote");
 //            gameLoop.Voting();
 //            //finish voting
 //            sendMessageToAll("finish voting");
             //start day
-            //start day
-            sendMessageToAll("start of the day phase");
-            chatRoom();
-            Thread.sleep(300000);
+//            sendMessageToAll("start of the day phase");
+//            chatRoom();
+//            Thread.sleep(300000);
+//            System.out.println("end day");
+//            endChatroom();
         } catch (IOException ex) {
             System.out.println("Error in the server: " + ex.getMessage());
             ex.printStackTrace();
@@ -178,33 +191,26 @@ public class Server {
         return message;
     }
 
-    public void joinThread(String playerName) {
-        for (PlayerHandler handler : userThreads) {
-            if (handler.getUserName().equals(playerName)) {
-                try {
-                    handler.join();
-                    break;
-                } catch (InterruptedException i) {
-                    i.printStackTrace();
-                }
-            }
-        }
-    }
+//    public void chatRoom(){
+//        ArrayList<ChatRoomHandler> roomHandlers = new ArrayList<ChatRoomHandler>();
+//        for (PlayerHandler handler : userThreads){
+//            ChatRoomHandler chatRoomHandler = new ChatRoomHandler(this,handler.getSocket(),
+//                    handler.getUserName(),handler.getWriter(),handler.getReader());
+//            chatRoomHandler.start();
+//            roomHandlers.add(chatRoomHandler);
+//        }
+//        setChatRoomHandlers(roomHandlers);
+//    }
+//
+//    public void endChatroom(){
+//        for (ChatRoomHandler handler : chatRoomHandlers){
+//            handler.stop();
+//        }
+//    }
 
-    public void chatRoom(){
-        ArrayList<ChatRoomHandler> roomHandlers = new ArrayList<ChatRoomHandler>();
-        for (PlayerHandler handler : userThreads){
-            ChatRoomHandler chatRoomHandler = new ChatRoomHandler(this,handler.getSocket(),
-                    handler.getUserName(),handler.getWriter(),handler.getReader());
-            chatRoomHandler.start();
-            roomHandlers.add(chatRoomHandler);
-        }
-        setChatRoomHandlers(roomHandlers);
-    }
-
-    public void setChatRoomHandlers(ArrayList<ChatRoomHandler> chatRoomHandlers) {
-        this.chatRoomHandlers = chatRoomHandlers;
-    }
+//    public void setChatRoomHandlers(ArrayList<ChatRoomHandler> chatRoomHandlers) {
+//        this.chatRoomHandlers = chatRoomHandlers;
+//    }
 
     public static void main(String args[]) {
         Server server = new Server();

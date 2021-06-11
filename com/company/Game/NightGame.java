@@ -1,281 +1,82 @@
 package com.company.Game;
 
-import com.company.characters.DieHard;
-import com.company.characters.Role;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
-import java.util.Set;
 
 public class NightGame {
 
-    private ArrayList<String> mafiavotes;
-    private Scanner scanner;
-    private HashMap<Role, String> rolesAndNames;
+    private static Scanner scanner = new Scanner(System.in);
 
-    public NightGame() {
-        scanner = new Scanner(System.in);
-        mafiavotes = new ArrayList<String>();
+    public static String mafiaAct() {
+       System.out.println("Who do you want to kill?");
+       String kill = scanner.nextLine();
+       return kill;
     }
 
-    public NightGame(HashMap<Role, String> r) {
-        rolesAndNames = r;
-        scanner = new Scanner(System.in);
-        mafiavotes = new ArrayList<String>();
+    public static String doctor() {
+        System.out.println("Which of your teammates do you want to save?");
+        String hill = scanner.nextLine();
+        return hill;
     }
 
-    public void lectorAndOrdinaryMafia() {
-        String kill = "";
-        boolean truth = false;
-        while (true) {
-            System.out.println("Who are you going to kill?");
-            kill = scanner.nextLine();
-            truth = checkCitizenTeam(kill);
-            if (truth == true)
-                break;
-            else
-                System.out.println("unvalid input.please try again.");
-        }
-        mafiavotes.add(kill);
+    public static String detective() {
+        System.out.println("Who do you want to inquire about?");
+        String inquiry = scanner.nextLine();
+        return inquiry;
     }
 
-    public void godFather() {
-        String kill = "";
-        boolean truth = false;
-        while (true) {
-            System.out.println("votes of your teammates : " + mafiavotes + "\n" +
-                    "Who are you going to kill?");
-            kill = scanner.nextLine();
-            truth = checkCitizenTeam(kill);
-            if (truth == true)
-                break;
-            else
-                System.out.println("unvalid input.please try again.");
-        }
-        //find player
-        Role role = null;
-        Set<Role> roles = rolesAndNames.keySet();
-        for (Role role1 : roles) {
-            if (rolesAndNames.get(role1).equals(kill)) {
-                role = role1;
-                break;
-            }
-        }
-        //kill player[citizen]
-        role.setAlive(false);
-    }
-
-    public void doctor(String teamName) {
-        String save = "";
-        boolean truth = false;
-        while (true) {
-            System.out.println("Which of your teammates do you want to save?");
-            save = scanner.nextLine();
-            if (teamName.equals("Mafia")) {
-                truth = checkMafiaTeam(save);
-                if (truth == true)
-                    break;
-                else
-                    System.out.println("unvalid input.please try again.");
-            } else if (teamName.equals("Citizen")) {
-                truth = checkCitizenTeam(save);
-                if (truth == true)
-                    break;
-                else
-                    System.out.println("unvalid input.please try again.");
-            }
-        }
-        //find player
-        Role role = null;
-        Set<Role> roles = rolesAndNames.keySet();
-        for (Role role1 : roles) {
-            if (rolesAndNames.get(role1).equals(save)) {
-                role = role1;
-                break;
-            }
-        }
-        if (!(role.isAlive()))
-            role.setAlive(true);
-    }
-
-    public void detective() {
-        String inquiry = "";
-        boolean truth = false;
-        while (true) {
-            System.out.println("Who do you want to inquire about?");
-            inquiry = scanner.nextLine();
-            truth = checkCitizenTeam(inquiry);
-            if (truth == true)
-                break;
-            else
-                System.out.println("unvalid input.please try again.");
-            truth = checkMafiaTeam(inquiry);
-            if (truth == true)
-                break;
-            else
-                System.out.println("unvalid input.please try again.");
-        }
-
-        Role role = null;
-        Set<Role> roles = rolesAndNames.keySet();
-        for (Role role1 : roles) {
-            if (rolesAndNames.get(role1).equals(inquiry)) {
-                role = role1;
-                break;
-            }
-        }
-        if (role.isInquiry())
-            System.out.println("Yes");
-        else if (!role.isInquiry())
-            System.out.println("No");
-    }
-
-    public void sniper() {
-        String kill = "";
-        String shoot = "";
+    public static String sniper() {
         System.out.println("Do you want to use your role?");
-        String answer = scanner.next();
-        if (answer.equals("yes")) {
-            System.out.println("Who are you going to kill?");
-            kill = scanner.nextLine();
-            boolean truth = checkMafiaTeam(kill);
-            if (truth)
-                shoot = "shoot correctly";
-            else
-                shoot = "wrong shooting";
-        } else {
-            shoot = "not shoot";
-        }
-
-        Role role = null;
-        Set<Role> roles = rolesAndNames.keySet();
-
-        if (shoot.equals("shoot correctly")) {
-            for (Role role1 : roles) {
-                if (rolesAndNames.get(role1).equals(kill)) {
-                    role = role1;
-                    break;
-                }
-            }
-        } else if (shoot.equals("wrong shooting")) {
-            for (Role role1 : roles) {
-                if (role1.getName().equals("Sniper")) {
-                    role = role1;
-                    break;
-                }
-            }
-        }
-        if (role != null)
-            role.setAlive(false);
-    }
-
-    public void psychologist() {
-        System.out.println("Do you want to use your role?.write yes or no");
         String answer = scanner.nextLine();
-        if (answer.equals("yes")) {
-            String silence = "";
-            boolean truth = false;
-            while (true) {
-                System.out.println("Who do you want to silence?");
-                silence = scanner.nextLine();
-                truth = checkCitizenTeam(silence);
-                if (truth == true)
-                    break;
-                else
-                    System.out.println("unvalid input.please try again.");
-                truth = checkMafiaTeam(silence);
-                if (truth == true)
-                    break;
-                else
-                    System.out.println("unvalid input.please try again.");
-            }
-            //find player
-            Role role = null;
-            Set<Role> roles = rolesAndNames.keySet();
-            for (Role role1 : roles) {
-                if (rolesAndNames.get(role1).equals(silence)) {
-                    role = role1;
-                    break;
-                }
-            }
-            //silence player
-            role.setCanSpeak(false);
+        String kill = "";
+        if (answer.equals("yes")){
+            System.out.println("Who do you want to kill?");
+            kill = scanner.nextLine();
+        }else if (answer.equals("no")){
+            kill = "didn't want";
         }
+        return kill;
     }
 
-    public String dieHard() {
-        System.out.println("Do you want to use your role?.write yes or no");
-        String answer = scanner.next();
-        DieHard dieHard = (DieHard) ManageData.getRole("Die hard");
-        if (answer.equals("yes")) {
-            int counter = dieHard.getCounterInquiry();
-            if (counter == 2) {
-                System.out.println("You can no longer query.");
-                answer = "No";
-            } else {
-                dieHard.increament();
-            }
+    public static String psychologist() {
+        System.out.println("Do you want to use your role?");
+        String answer = scanner.nextLine();
+        String silent = "";
+        if (answer.equals("yes")){
+            System.out.println("who do you want to silent it?");
+            silent = scanner.nextLine();
+        }else if (answer.equals("no")){
+            silent = "didn't want";
+        }
+        return silent;
+    }
+
+    public static String dieHard() {
+        String answer;
+        while (true){
+            System.out.println("Do you want to use your role?");
+            answer = scanner.nextLine();
+            if (answer.equals("yes") || answer.equals("no"))
+                break;
         }
         return answer;
     }
 
-    private boolean checkMafiaTeam(String name) {
-        Role godfather = ManageData.getRole("godFather");
-        Role doctorLector = ManageData.getRole("Doctor lector");
-        Role ordinaryMafia = ManageData.getRole("ordinary Mafia");
+//    public HashMap<Role, String> updateGame() {
+//        HashMap<Role, String> deads = new HashMap<Role, String>();
+//
+//        Set<Role> roles = rolesAndNames.keySet();
+//
+//        for (Role role : roles) {
+//            if (!(role.isAlive())) {
+//                String name = rolesAndNames.get(role);
+//                deads.put(role, name);
+//                rolesAndNames.remove(role, name);
+//            }
+//        }
+//        return deads;
+//    }
 
-        String godName = rolesAndNames.get(godfather);
-        String doctorName = rolesAndNames.get(doctorLector);
-        String ordinaryName = rolesAndNames.get(ordinaryMafia);
-
-        if (godName.equals(name) || doctorName.equals(name) || ordinaryName.equals(name))
-            return true;
-        return false;
-    }
-
-    private boolean checkCitizenTeam(String name) {
-        Role mayor = ManageData.getRole("Mayor");
-        Role sniper = ManageData.getRole("Sniper");
-        Role psychologist = ManageData.getRole("Psychologist");
-        Role ordinaryCitizen = ManageData.getRole("Ordinary Citizen");
-        Role dieHard = ManageData.getRole("Die hard");
-        Role detective = ManageData.getRole("Detective");
-        Role doctor = ManageData.getRole("City doctor");
-
-        String mayorName = rolesAndNames.get(mayor);
-        String sniperName = rolesAndNames.get(sniper);
-        String psychologistName = rolesAndNames.get(psychologist);
-        String ordinaryName = rolesAndNames.get(ordinaryCitizen);
-        String dieHardName = rolesAndNames.get(dieHard);
-        String detectiveName = rolesAndNames.get(detective);
-        String doctorName = rolesAndNames.get(doctor);
-
-        if (mayorName.equals(name) || sniperName.equals(name) || psychologistName.equals(name))
-            return true;
-        if (ordinaryName.equals(name) || dieHardName.equals(name))
-            return true;
-        if (detectiveName.equals(name) || doctorName.equals(name))
-            return true;
-        return false;
-    }
-
-    public HashMap<Role, String> updateGame() {
-        HashMap<Role, String> deads = new HashMap<Role, String>();
-
-        Set<Role> roles = rolesAndNames.keySet();
-
-        for (Role role : roles) {
-            if (!(role.isAlive())) {
-                String name = rolesAndNames.get(role);
-                deads.put(role, name);
-                rolesAndNames.remove(role, name);
-            }
-        }
-        return deads;
-    }
-
-    public HashMap<Role, String> getRolesAndNames() {
-        return rolesAndNames;
-    }
+//    public HashMap<Role, String> getRolesAndNames() {
+//        return rolesAndNames;
+//    }
 }

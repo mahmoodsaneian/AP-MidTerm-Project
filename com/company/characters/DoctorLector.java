@@ -15,4 +15,8 @@ public class DoctorLector extends MafiaTeam {
     public int getSaveYourSelf() {
         return saveYourSelf;
     }
+
+    public void increament(){
+        saveYourSelf++;
+    }
 }

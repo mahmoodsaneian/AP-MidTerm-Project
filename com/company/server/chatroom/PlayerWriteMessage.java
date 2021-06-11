@@ -17,13 +17,6 @@ public class PlayerWriteMessage extends Thread {
         this.socket = socket;
         this.palyer = player;
         this.writer = writer;
-//        try {
-//            OutputStream output = socket.getOutputStream();
-//            writer = new PrintWriter(output, true);
-//        } catch (IOException ex) {
-//            System.out.println("Error getting output stream: " + ex.getMessage());
-//            ex.printStackTrace();
-//        }
     }
 
     public void run() {
@@ -35,11 +28,12 @@ public class PlayerWriteMessage extends Thread {
         long end = start + 300 *1000;
 
         while (System.currentTimeMillis() < end) {
-            if (System.currentTimeMillis() == end)
-                break;
             System.out.print("[ you ] : ");
             text = scanner.nextLine();
-            text = "[ " + palyer.getName() + " ] :" + text;
+            text = "[ " + palyer.getName() + " ] :" + text ;
+            if (System.currentTimeMillis() == end) {
+                break;
+            }
             writer.println(text);
         }
     }

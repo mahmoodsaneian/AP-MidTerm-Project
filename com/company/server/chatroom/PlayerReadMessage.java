@@ -11,17 +11,14 @@ public class PlayerReadMessage extends Thread {
     private Socket socket;
     private PlayerMafia palyer;
 
-    public PlayerReadMessage(Socket socket, PlayerMafia player, BufferedReader reader) {
+    public PlayerReadMessage(Socket socket, PlayerMafia player) {
         this.socket = socket;
         this.palyer = player;
-        this.reader = reader;
-//        try {
-//            InputStream input = socket.getInputStream();
-//            reader = new BufferedReader(new InputStreamReader(input));
-//        } catch (IOException ex) {
-//            System.out.println("Error getting input stream: " + ex.getMessage());
-//            ex.printStackTrace();
-//        }
+        try {
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     public void run() {
@@ -33,11 +30,11 @@ public class PlayerReadMessage extends Thread {
                 if (System.currentTimeMillis() == end)
                     break;
                 String response = reader.readLine();
-                System.out.println(response);
+                System.out.println(response );
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+        System.out.println("read bastam");
     }
-
 }
