@@ -25,34 +25,8 @@ public  class Role implements Serializable {
 
     public String getVote(){
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Now is the time to vote. You have 30 seconds to vote");
-
-        long start = System.currentTimeMillis();
-        long end = start + 30*1000;
-        String delete = null;
-        ArrayList<String> usernames = ManageData.getUsernames();
-        System.out.println("players in the game : "+usernames);
-        boolean truth = false;
-
-        outer:
-        while (System.currentTimeMillis() < end){
-            while (true) {
-                System.out.println("Who do you want to delete?");
-                delete = scanner.nextLine();
-                for (String user : usernames){
-                    if (user.equals(delete)){
-                        truth = true;
-                        break;
-                    }
-                }
-                if (truth)
-                    break outer;
-                else
-                    System.out.println("invalid input.please try again");
-            }
-        }
-        if (delete == null)
-            delete = "invalid vote";
+        System.out.println("Who do you want to delete?");
+        String delete = scanner.nextLine();
         return delete;
     }
 

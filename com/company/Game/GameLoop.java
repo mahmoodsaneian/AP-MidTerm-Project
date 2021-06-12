@@ -1,6 +1,7 @@
 package com.company.Game;
 
 import com.company.characters.CityDoctor;
+import com.company.characters.DieHard;
 import com.company.characters.DoctorLector;
 import com.company.characters.Role;
 import com.company.server.Server;
@@ -20,7 +21,7 @@ public class GameLoop {
         this.server = server;
         rolesAndUsernames = new HashMap<Role, String>();
         dieHardAct = false;
-        deads = new HashMap<Role,String>();
+        deads = new HashMap<Role, String>();
         initHashMap(nameRolesAndUsernames);
     }
 
@@ -133,20 +134,13 @@ public class GameLoop {
         }
     }
 
-//    public void print(){
-//        Set<Role> roleSet = rolesAndUsernames.keySet();
-//        for (Role role : roleSet){
-//            System.out.println(rolesAndUsernames.get(role) + " : "+role.getName());
-//        }
-//    }
-
     public void nightGame() {
         boolean condition = false;
         String answer = "";
         ArrayList<String> mafiaVotes = new ArrayList<String>();
 
         //print exist players to player
-        server.sendMessageToAll("exist player in the game : " + ManageData.getUsernames());
+        server.sendMessageToAll("exist player in the game : " + server.getUserNames());
 
         //Those who do not do anything special at night
         Role mayor = ManageData.getRole("Mayor");
@@ -182,8 +176,11 @@ public class GameLoop {
                 answer = server.getMessageFromSpecifiecPlayer(ordinaryName);
                 condition = checkCitizenTeam(answer);
                 if (condition == true) {
+                    if (godName == null && doctorName == null)
+                        godFatherAct(answer);
+                    else
+                        mafiaVotes.add(answer);
                     server.sendMessageToSpecifiecPlayer(ordinaryName, "Ok");
-                    mafiaVotes.add(answer);
                     condition = false;
                     break;
                 } else if (condition == false) {
@@ -214,7 +211,10 @@ public class GameLoop {
                 answer = server.getMessageFromSpecifiecPlayer(doctorName);
                 condition = checkMafiaTeam(answer);
                 if (condition == true) {
-                    lectorAct(answer);
+                    if (godName == null)
+                        godFatherAct(answer);
+                    else
+                        lectorAct(answer);
                     server.sendMessageToSpecifiecPlayer(doctorName, "Ok");
                     condition = false;
                     break;
@@ -306,7 +306,7 @@ public class GameLoop {
                     server.sendMessageToSpecifiecPlayer(detectiveName, "Unvalid input");
             }
         }
-        server.sendMessageToSpecifiecPlayer(detectiveName,answer +" : "+detectiveAct(answer));
+        server.sendMessageToSpecifiecPlayer(detectiveName, answer + " : " + detectiveAct(answer));
         server.sendMessageToAll("The detective did its job");
 
         //send message to Sniper
@@ -314,16 +314,15 @@ public class GameLoop {
             server.sendMessageToSpecifiecPlayer(sniperName, "start your act");
             while (true) {
                 answer = server.getMessageFromSpecifiecPlayer(sniperName);
-                condition = checkMafiaTeam(answer);
-                if (answer.equals(sniperName)) {
-                    sniperAct(answer);
+                condition = checkCitizenTeam(answer);
+                if ((condition == true) || answer.equals("didn't want")) {
                     server.sendMessageToSpecifiecPlayer(sniperName, "Ok");
                     condition = false;
                     break;
                 }
-                if ((condition == true) || answer.equals("didn't want")) {
-                    if (!answer.equals("didn't want"))
-                        sniperAct(answer);
+                condition = checkMafiaTeam(answer);
+                if ((condition == true) || answer.equals(sniperName)) {
+                    sniperAct(answer);
                     server.sendMessageToSpecifiecPlayer(sniperName, "Ok");
                     condition = false;
                     break;
@@ -371,59 +370,119 @@ public class GameLoop {
         }
         server.sendMessageToAll("The die hard did its job");
     }
-//    public void Voting(){
-//        ArrayList<String> votes = new ArrayList<String>();
-//        Set<Role> roles = rolesAndUsernames.keySet();
-//        String name = null;
-//        String vote = "";
-//
-//        for (Role role : roles){
-//            name = rolesAndUsernames.get(role);
-//            if (name != null) {
-//                server.joinThread(name);
-//                vote = server.getMessageFromSpecifiecPlayer(name);
-//                votes.add(vote);
-//                name = null;
-//            }
-//        }
-//
-//        String message = null;
-//        String mayorName = null;
-//        String answer = null;
-//        Role mayor = ManageData.getRole("Mayor");
-//        mayorName = rolesAndUsernames.get(mayor);
-//        if (mayorName != null){
-//            message = "votes are : "+votes;
-//            server.sendMessageToSpecifiecPlayer(mayorName,message);
-//            server.joinThread(mayorName);
-//            answer = server.getMessageFromSpecifiecPlayer(mayorName);
-//        }
-//
-//        if (answer.equals("No") || answer.equals("no")){
-//            int[] counterVotes = new int[votes.size()];
-//
-//            for (int i = 0;i < votes.size();i++){
-//                String user = votes.get(i);
-//                int counter = 0;
-//                for (int j = 0;j < votes.size();j++){
-//                    if (i != j){
-//                        if (user.equals(votes.get(j)))
-//                            counter++;
-//                    }
-//                }
-//            counterVotes[i] = counter;
-//            }
-//
-//            int index = 0;
-//            for (int i = 0;i < counterVotes.length;i++){
-//                if (counterVotes[i] > counterVotes[index]){
-//                    index = i;
-//                }
-//            }
-//
-//            String delete = votes.get(index);
-//        }
-//    }
+
+
+    public void voting() {
+        Set<Role> roleSet = rolesAndUsernames.keySet();
+        ArrayList<String> votes = new ArrayList<String>();
+        String vote = null;
+
+        //Get valid vote from each player
+        for (Role role : roleSet) {
+            String name = rolesAndUsernames.get(role);
+            server.sendMessageToSpecifiecPlayer(name, "player exist in the game : " + server.getUserNames());
+            server.sendMessageToSpecifiecPlayer(name, "start voting");
+
+            long start = System.currentTimeMillis();
+            long end = start + 30 * 1000;
+
+            while (System.currentTimeMillis() < end) {
+                if (System.currentTimeMillis() >= end) {
+                    vote = "Refrained";
+                    break;
+                }
+                //Get vote from player
+                vote = server.getMessageFromSpecifiecPlayer(name);
+                //Check validity
+                boolean condition = checkCitizenTeam(vote);
+                if (condition == true) {
+                    votes.add(vote);
+                    server.sendMessageToSpecifiecPlayer(name, "Ok");
+                    break;
+                }
+                //Check validity
+                condition = checkMafiaTeam(vote);
+                if (condition == true) {
+                    votes.add(vote);
+                    server.sendMessageToSpecifiecPlayer(name, "Ok");
+                    break;
+                }
+                //Refrained votes.If after 30 seconds player
+                if (vote.equals("Refrained")) {
+                    server.sendMessageToSpecifiecPlayer(name, "Ok");
+                    break;
+                }
+                server.sendMessageToSpecifiecPlayer(name, "unvalid input");
+            }
+            if (!vote.equals("Refrained"))
+                server.sendMessageToAll(name + " voted for " + vote);
+            else
+                server.sendMessageToAll(name + " abstained");
+        }
+        //finish ask vote from players
+        server.sendMessageToAll("finish voting");
+
+        //Find mayor
+        Role mayor = ManageData.getRole("Mayor");
+        String mayorName = rolesAndUsernames.get(mayor);
+        boolean cancel = false;
+
+        //Get answer from [Mayor]
+        if (mayorName != null) {
+            String response = server.getMessageFromSpecifiecPlayer(mayorName);
+            if (response.equals("yes"))
+                cancel = true;
+        }
+
+        //if mayor didn't cancel voting
+        if (cancel == false) {
+            //Find how many votes each person has
+            String kill = null;
+            int[] votesCounter = new int[votes.size()];
+
+            for (int i = 0; i < votes.size(); i++) {
+                String target = votes.get(i);
+                int counter = 0;
+                for (int j = 0; j < votes.size(); j++) {
+                    if (votes.get(j).equals(target))
+                        counter++;
+                }
+                votesCounter[i] = counter;
+            }
+
+            //Check equals number
+            boolean equality = false;
+            outer:
+            for (int i = 0;i < votesCounter.length;i++){
+                int target = votesCounter[i];
+                for (int j = 0;j < votesCounter.length;j++){
+                    if ((votesCounter[j] == target) && (!votes.get(j).equals(votes.get(i)))){
+                        equality = true;
+                        break outer;
+                    }
+                }
+            }
+
+            if (equality == false){
+                //Find largest number of votes
+                int largest = votesCounter[0];
+                int index = 0;
+                for (int i = 1;i < votesCounter.length;i++){
+                    if (votesCounter[i] > largest){
+                        largest = votesCounter[i];
+                        index = i;
+                    }
+                }
+                server.sendMessageToAll(votes.get(index) + " is killed");
+                voteKill(votes.get(index));
+            }else if (equality == true){
+                server.sendMessageToAll("No one will be removed due to an equal vote.");
+            }
+            //If mayor canceled voting
+        } else if (cancel == true) {
+            server.sendMessageToAll("The mayor canceled the vote");
+        }
+    }
 
     private boolean checkCitizenTeam(String name) {
         //Find roles
@@ -507,7 +566,16 @@ public class GameLoop {
 
         //Kill player
         if (role != null) {
-            role.setAlive(false);
+            if (role.getName().equals("Die hard")) {
+                DieHard dieHard = (DieHard) role;
+                if (dieHard.getKillCounter() == 2) {
+                    dieHard.setAlive(false);
+                } else {
+                    dieHard.increament();
+                }
+            } else {
+                role.setAlive(false);
+            }
         }
     }
 
@@ -534,7 +602,7 @@ public class GameLoop {
                     }
                 }
             } else {
-                if (role.isAlive() == false){
+                if (role.isAlive() == false) {
                     role.setAlive(true);
                 }
             }
@@ -588,64 +656,87 @@ public class GameLoop {
         return b;
     }
 
-    private void sniperAct(String kill){
+    private void sniperAct(String kill) {
         Role role = null;
         Set<Role> roleSet = rolesAndUsernames.keySet();
 
         //Find role of player
-        for (Role role1 : roleSet){
-            if (rolesAndUsernames.get(role1).equals(kill)){
+        for (Role role1 : roleSet) {
+            if (rolesAndUsernames.get(role1).equals(kill)) {
                 role = role1;
                 break;
             }
         }
 
         //Kill player
-        if (role != null){
+        if (role != null) {
             role.setAlive(false);
         }
     }
 
-    private void psychologistAct(String name){
+    private void psychologistAct(String name) {
         Role role = null;
         Set<Role> roleSet = rolesAndUsernames.keySet();
 
         //Find role of player
-        for (Role role1 : roleSet){
-            if (rolesAndUsernames.get(role1).equals(name)){
+        for (Role role1 : roleSet) {
+            if (rolesAndUsernames.get(role1).equals(name)) {
                 role = role1;
                 break;
             }
         }
 
-        if (role != null){
+        if (role != null) {
             role.setCanSpeak(false);
         }
     }
 
-    public void updateGame(){
+    public void updateGame() {
         Set<Role> roleSet = rolesAndUsernames.keySet();
         Iterator<Role> it = roleSet.iterator();
 
-        while (it.hasNext()){
-            Role role;
-            role = it.next();
-            if (role.isAlive() == false){
+        while (it.hasNext()) {
+            Role role = it.next();
+            if (role.isAlive() == false) {
                 String name = rolesAndUsernames.get(role);
                 rolesAndUsernames.remove(role, name);
                 deads.put(role, name);
             }
         }
-        System.out.println(rolesAndUsernames);
+
+        Set<Role> roles = rolesAndUsernames.keySet();
+        System.out.println("roles and usernames : ");
+        for (Role role : roles) {
+            System.out.println(role.getName() + " : " + rolesAndUsernames.get(role));
+        }
     }
 
+    public void voteKill(String kill){
+        Set<Role> roleSet = rolesAndUsernames.keySet();
+        Role killvote = null;
+
+        //Find role of player
+        for (Role role : roleSet){
+            if (rolesAndUsernames.get(role).equals(kill)){
+                killvote = role;
+                break;
+            }
+        }
+
+        if (killvote != null){
+            System.out.println(kill + " killed");
+            rolesAndUsernames.remove(killvote, kill);
+        }
+
+        System.out.println(rolesAndUsernames);
+    }
 
     public HashMap<Role, String> getDeads() {
         return deads;
     }
 
 
-    public void clearDeads(){
+    public void clearDeads() {
         deads.clear();
     }
 

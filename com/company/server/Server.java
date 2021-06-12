@@ -3,6 +3,7 @@ package com.company.server;
 import com.company.Game.CreateRoles;
 import com.company.Game.GameLoop;
 import com.company.Game.ManageData;
+import com.company.characters.Role;
 import com.company.server.chatroom.ChatRoomHandler;
 
 import java.io.*;
@@ -80,28 +81,29 @@ public class Server {
             //finish first night
             sendMessageToAll("finish first night");
             Thread.sleep(8000);
-            //start night game
-            sendMessageToAll("The night has started and the game server will move forward. " +
-                    "Wait until the night is completely over");
-            gameLoop.nightGame();
-            //finish nigh game
-            sendMessageToAll("night finished");
-            Thread.sleep(8000);
-            gameLoop.updateGame();
-            System.out.println("deads : " +gameLoop.getDeads());
-            gameLoop.clearDeads();
-            System.out.println("deadsa : "+gameLoop.getDeads());
-//            //start voting
-//            sendMessageToAll("vote");
-//            gameLoop.Voting();
-//            //finish voting
-//            sendMessageToAll("finish voting");
+//            //start night game
+//            sendMessageToAll("The night has started and the game server will move forward. " +
+//                    "Wait until the night is completely over");
+//            gameLoop.nightGame();
+//            //finish nigh game
+//            sendMessageToAll("night finished");
+//            Thread.sleep(8000);
+//            gameLoop.updateGame();
+//            HashMap<Role, String> deads = gameLoop.getDeads();
+//            Set<Role> roleSet = deads.keySet();
+//            System.out.println("deads : ");
+//            for (Role role : roleSet){
+//                System.out.println(role.getName() + " : "+deads.get(role));
+//            }
+//            gameLoop.clearDeads();
             //start day
 //            sendMessageToAll("start of the day phase");
 //            chatRoom();
 //            Thread.sleep(300000);
 //            System.out.println("end day");
 //            endChatroom();
+            //start voting
+            gameLoop.voting();
         } catch (IOException ex) {
             System.out.println("Error in the server: " + ex.getMessage());
             ex.printStackTrace();

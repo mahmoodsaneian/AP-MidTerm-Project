@@ -9,6 +9,7 @@ import com.company.server.chatroom.PlayerWriteMessage;
 
 import java.net.*;
 import java.io.*;
+import java.util.IllegalFormatCodePointException;
 import java.util.Scanner;
 
 public class PlayerMafia {
@@ -102,36 +103,47 @@ public class PlayerMafia {
 //            }
 //            System.out.println("end day");
             //night of game
-            while (true) {
-                serverMessage = reader.readLine();
-                if (serverMessage.equals("start your act")) {
-                    manageNightGame();
-                }
-                if (serverMessage.equals("night finished")) {
-                    System.out.println(serverMessage + " wait 8 seconds");
-                    Thread.sleep(8000 );
-                    break;
-                }
-                if (!serverMessage.equals("start your act"))
-                    System.out.println(serverMessage);
-            }
-//            //voting
-//            while (!serverMessage.equals("finish voting")){
+//            while (true) {
 //                serverMessage = reader.readLine();
-//                String vote = role.getVote();
-//                writer.println(vote);
-//                if (serverMessage.equals("finish voting"))
+//                if (serverMessage.equals("start your act")) {
+//                    manageNightGame();
+//                }
+//                if (serverMessage.equals("night finished")) {
+//                    System.out.println(serverMessage + " wait 8 seconds");
+//                    Thread.sleep(8000 );
 //                    break;
+//                }
+//                if (!serverMessage.equals("start your act"))
+//                    System.out.println(serverMessage);
 //            }
-//            System.out.println(serverMessage);
-            //question from mayor
-//            if (role.getName().equals("Mayor")){
-//                serverMessage = reader.readLine();
-//                System.out.println(serverMessage);
-//                System.out.println("Do you want to cancel the vote?please enter yes or no");
-//                answer = scanner.nextLine();
-//                writer.println(answer);
-//            }
+
+            //start voting
+            while (true){
+                serverMessage = reader.readLine();
+                if(serverMessage.equals("start voting")){
+                    System.out.println("Now is the time to vote. You have 30 seconds to vote");
+                    voting();
+                }
+                if (!serverMessage.equals("start voting"))
+                    System.out.println(serverMessage);
+                if (serverMessage.equals("finish voting"))
+                    break;
+            }
+            //Ask from [Mayor]
+            if (role.getName().equals("Mayor")){
+                while (true){
+                    System.out.println("Do you want cancel voting or no?write [yes] or [no]");
+                    String cancel = scanner.nextLine();
+                    if (cancel.equals("no") || cancel.equals("yes")){
+                        writer.println(cancel);
+                        break;
+                    }else{
+                        System.out.println("Unvalid input please try again");
+                    }
+                }
+            }
+            serverMessage = reader.readLine();
+            System.out.println(serverMessage);
         } catch (UnknownHostException ex) {
             System.out.println("Server not found: " + ex.getMessage());
             ex.printStackTrace();
@@ -381,7 +393,7 @@ public class PlayerMafia {
                 break;
             case "Die hard":
                 DieHard dieHard = (DieHard) role;
-                if (dieHard.getCounterInquiry() == 2){
+                if (dieHard.getKillCounter() == 2){
                     System.out.println("You have used the permissible number of your inquiries");
                 }else {
                     answer = NightGame.dieHard();
@@ -393,6 +405,35 @@ public class PlayerMafia {
                         "Wait for the night to end");
                 break;
         }
+    }
 
+    public void voting(){
+        try {
+            long start = System.currentTimeMillis();
+            long end = start + 30 * 1000;
+            String delete = null;
+
+            while (System.currentTimeMillis() < end){
+                if (System.currentTimeMillis() >= end){
+                    System.out.println("Your time is up");
+                    delete = "Refrained";
+                    writer.println(delete);
+                    break;
+                }
+                //Get vote from player
+                delete = role.getVote();
+                //Send to server
+                writer.println(delete);
+                //Get response from server
+                String serverMessage = reader.readLine();
+                if (serverMessage.equals("Ok")){
+                    System.out.println("Your vote has been registered");
+                    break;
+                }
+                System.out.println(serverMessage);
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }
