@@ -60,23 +60,4 @@ public class NightGame {
         }
         return answer;
     }
-
-//    public HashMap<Role, String> updateGame() {
-//        HashMap<Role, String> deads = new HashMap<Role, String>();
-//
-//        Set<Role> roles = rolesAndNames.keySet();
-//
-//        for (Role role : roles) {
-//            if (!(role.isAlive())) {
-//                String name = rolesAndNames.get(role);
-//                deads.put(role, name);
-//                rolesAndNames.remove(role, name);
-//            }
-//        }
-//        return deads;
-//    }
-
-//    public HashMap<Role, String> getRolesAndNames() {
-//        return rolesAndNames;
-//    }
 }

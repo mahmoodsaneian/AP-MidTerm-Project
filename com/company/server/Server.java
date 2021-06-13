@@ -52,20 +52,19 @@ public class Server {
             //All players are connected. We start the game
             sendMessageToAll("Capacity was completed. The game started.");
             sendMessageToAll("finish");
+            System.out.println("All players join to the game.The game started");
 
-            //Declaration of readiness.get answer from user.
+            //Declaration of readiness.get answer from players.
+            System.out.println("We ask all the players if they are ready to start the game or not");
             sendMessageToAll("Are you ready to start the game?.please type [ready]");
             ArrayList<String> answers = new ArrayList<String>();
             for (PlayerHandler handler : userThreads){
                 String playerAnswer = handler.getMessageFromPlayer();
                 answers.add(playerAnswer);
             }
-//            //Check Answers
-//            for (String playerAnswer : answers){
-//                if (!playerAnswer.equals("ready"))
-//                    System.out.println("wait.a palyer not ready");
-//            }
+
             //send role to player
+            System.out.println("Send role to each player");
             for (PlayerHandler handler : userThreads) {
                 String role = getRandomRole();
                 handler.sendMessage(role);
@@ -76,34 +75,34 @@ public class Server {
             GameLoop gameLoop = new GameLoop(this, rolesAndUsernames);
 
             //start first night.
+            System.out.println("The first night of the game started");
             gameLoop.firstNight();
-
             //finish first night
-            sendMessageToAll("finish first night");
+            System.out.println("End first night of game.Wait 8 seconds");
             Thread.sleep(8000);
-//            //start night game
-//            sendMessageToAll("The night has started and the game server will move forward. " +
-//                    "Wait until the night is completely over");
-//            gameLoop.nightGame();
-//            //finish nigh game
-//            sendMessageToAll("night finished");
-//            Thread.sleep(8000);
-//            gameLoop.updateGame();
-//            HashMap<Role, String> deads = gameLoop.getDeads();
-//            Set<Role> roleSet = deads.keySet();
-//            System.out.println("deads : ");
-//            for (Role role : roleSet){
-//                System.out.println(role.getName() + " : "+deads.get(role));
-//            }
-//            gameLoop.clearDeads();
+
+
+            //start night game
+            System.out.println("Start game night");
+            gameLoop.nightGame();
+            //finish nigh game
+            System.out.println("End night of game.Wait 8 seconds");
+            Thread.sleep(8000);
+
+
             //start day
-//            sendMessageToAll("start of the day phase");
-//            chatRoom();
-//            Thread.sleep(300000);
-//            System.out.println("end day");
-//            endChatroom();
+            System.out.println("Start game day");
+            gameLoop.day();
+            //finish day
+            System.out.println("Finish game day.Wait 15 seconds");
+            Thread.sleep(15000);
+
             //start voting
+            System.out.println("Start voting");
             gameLoop.voting();
+            //Finish voting
+            System.out.println("Finish voting.Wait 8 seconds");
+            Thread.sleep(8000);
         } catch (IOException ex) {
             System.out.println("Error in the server: " + ex.getMessage());
             ex.printStackTrace();
@@ -113,25 +112,8 @@ public class Server {
     }
 
 
-    public void broadcast(String message, PlayerHandler excludeUser) {
-        for (PlayerHandler aUser : userThreads) {
-            if (aUser != excludeUser)
-                aUser.sendMessage(message);
-        }
-    }
-
-    //For chatroom
-    public void broadcast(String message, ChatRoomHandler handler){
-        for (ChatRoomHandler roomHandler : chatRoomHandlers){
-            if (roomHandler != handler){
-                roomHandler.sendMessage(message);
-            }
-        }
-    }
-
     public void addUserName(String userName) {
         userNames.add(userName);
-        ManageData.addUsername(userName);
     }
 
     public void removeUser(String userName) {
@@ -159,12 +141,6 @@ public class Server {
         return !this.userNames.isEmpty();
     }
 
-    public void sendMessageToAll(String message) {
-        for (PlayerHandler playerThread : userThreads) {
-            playerThread.sendMessage(message);
-        }
-    }
-
     public String getRandomRole() {
         Random random = new Random();
         String role = roles.get(random.nextInt(roles.size()));
@@ -172,6 +148,26 @@ public class Server {
         return role;
     }
 
+    public void broadcast(String message, ChatRoomHandler handler){
+        for (ChatRoomHandler roomHandler : chatRoomHandlers){
+            if (roomHandler != handler){
+                roomHandler.sendMessage(message);
+            }
+        }
+    }
+
+    public void broadcast(String message, PlayerHandler excludeUser) {
+        for (PlayerHandler aUser : userThreads) {
+            if (aUser != excludeUser)
+                aUser.sendMessage(message);
+        }
+    }
+
+    public void sendMessageToAll(String message) {
+        for (PlayerHandler playerThread : userThreads) {
+            playerThread.sendMessage(message);
+        }
+    }
 
     public void sendMessageToSpecifiecPlayer(String playerName, String message){
         for (PlayerHandler playerHandler : userThreads){
@@ -193,26 +189,57 @@ public class Server {
         return message;
     }
 
-//    public void chatRoom(){
-//        ArrayList<ChatRoomHandler> roomHandlers = new ArrayList<ChatRoomHandler>();
-//        for (PlayerHandler handler : userThreads){
-//            ChatRoomHandler chatRoomHandler = new ChatRoomHandler(this,handler.getSocket(),
-//                    handler.getUserName(),handler.getWriter(),handler.getReader());
-//            chatRoomHandler.start();
-//            roomHandlers.add(chatRoomHandler);
-//        }
-//        setChatRoomHandlers(roomHandlers);
-//    }
-//
-//    public void endChatroom(){
-//        for (ChatRoomHandler handler : chatRoomHandlers){
-//            handler.stop();
-//        }
-//    }
+    public void chatRoom(){
+        ArrayList<ChatRoomHandler> roomHandlers = new ArrayList<ChatRoomHandler>();
 
-//    public void setChatRoomHandlers(ArrayList<ChatRoomHandler> chatRoomHandlers) {
-//        this.chatRoomHandlers = chatRoomHandlers;
-//    }
+        for (PlayerHandler handler : userThreads){
+            //Create an object from [ChatRoomHandler] class to player
+            ChatRoomHandler chatRoomHandler = new ChatRoomHandler(this,handler.getSocket(),
+                    handler.getUserName(),handler.getWriter(),handler.getReader());
+            //Start thread of chat
+            chatRoomHandler.start();
+            //Add to list
+            roomHandlers.add(chatRoomHandler);
+        }
+        setChatRoomHandlers(roomHandlers);
+    }
+
+    public void setChatRoomHandlers(ArrayList<ChatRoomHandler> chatRoomHandlers) {
+        this.chatRoomHandlers = chatRoomHandlers;
+    }
+
+    public void storeMessages(){
+        ArrayList<String> messages = new ArrayList<String>();
+        for (ChatRoomHandler handler : chatRoomHandlers){
+            ArrayList<String> tmp = handler.getMessages();
+            for (String s : tmp){
+                messages.add(s);
+            }
+        }
+        try (FileWriter fileWriter = new FileWriter("messages.txt",true);
+             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)){
+            for (String s : messages){
+                s += " ";
+                bufferedWriter.write(s);
+            }
+            System.out.println("Finish store messages in the file");
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void showHistory(){
+        try (FileReader fileReader = new FileReader("messages.txt");
+        BufferedReader reader = new BufferedReader(fileReader)){
+            int i;
+            while ((i = reader.read()) != -1)
+                System.out.print((char) i);
+        }catch (FileNotFoundException f){
+            f.printStackTrace();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
 
     public static void main(String args[]) {
         Server server = new Server();

@@ -27,14 +27,14 @@ public class PlayerReadMessage extends Thread {
 
         while (System.currentTimeMillis() < end) {
             try {
-                if (System.currentTimeMillis() == end)
+                if (System.currentTimeMillis() >= end)
                     break;
                 String response = reader.readLine();
-                System.out.println(response );
+                if (!response.equals("end#"))
+                System.out.println("\n"+response );
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println("read bastam");
     }
 }

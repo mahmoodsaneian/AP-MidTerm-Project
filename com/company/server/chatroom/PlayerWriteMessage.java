@@ -31,7 +31,8 @@ public class PlayerWriteMessage extends Thread {
             System.out.print("[ you ] : ");
             text = scanner.nextLine();
             text = "[ " + palyer.getName() + " ] :" + text ;
-            if (System.currentTimeMillis() == end) {
+            if (System.currentTimeMillis() >= end) {
+                writer.println("end#");
                 break;
             }
             writer.println(text);

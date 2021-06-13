@@ -56,7 +56,7 @@ public class PlayerMafia {
             }
 
             //All players connected to the game.
-            //We ask the players if they are ready to start the game or not?
+            //We ask the player if s/he is ready to start the game or not?
             serverMessage = reader.readLine();
             String answer = "";
             while (!answer.equals("ready")) {
@@ -87,35 +87,49 @@ public class PlayerMafia {
             }
             //end first night
 
-//            //start day
-//            long start = System.currentTimeMillis();
-//            long end = start + 300 * 1000;
+            //Start night game
+            while (true) {
+                serverMessage = reader.readLine();
+                if (serverMessage.equals("start your act")) {
+                    manageNightGame();
+                }
+                if (serverMessage.equals("night finished")) {
+                    System.out.println(serverMessage + " wait 8 seconds");
+                    Thread.sleep(8000 );
+                    break;
+                }
+                if (!serverMessage.equals("start your act"))
+                    System.out.println(serverMessage);
+                if (serverMessage.equals("kill"))
+                    role.setAlive(false);
+                if (serverMessage.equals("hill"))
+                    role.setAlive(true);
+                if (serverMessage.equals("silent"))
+                    role.setCanSpeak(false);
+            }
 
-//            while (true) {
-//                if (System.currentTimeMillis() == end)
-//                    break;
-//                serverMessage = reader.readLine();
-////                System.out.println(serverMessage);
-//                if (serverMessage.equals("start of the day phase")){
-//                    chatRoom();
-//                    Thread.sleep(300000);
-//                }
-//            }
-//            System.out.println("end day");
-            //night of game
-//            while (true) {
-//                serverMessage = reader.readLine();
-//                if (serverMessage.equals("start your act")) {
-//                    manageNightGame();
-//                }
-//                if (serverMessage.equals("night finished")) {
-//                    System.out.println(serverMessage + " wait 8 seconds");
-//                    Thread.sleep(8000 );
-//                    break;
-//                }
-//                if (!serverMessage.equals("start your act"))
-//                    System.out.println(serverMessage);
-//            }
+            //Check exit
+            if (role.isAlive() == false){
+                System.out.println("dead");
+                System.exit(1);
+            }
+            //start day
+            long start = System.currentTimeMillis();
+            long end = start + 300 * 1000;
+
+            while (true) {
+                if (System.currentTimeMillis() >= end)
+                    break;
+                serverMessage = reader.readLine();
+                if (serverMessage.equals("start chat")){
+                    chatRoom();
+                }
+                if (!serverMessage.equals("start chat"))
+                    System.out.println(serverMessage);
+            }
+            System.out.println("end day.you can't write message.chat room closed.OK? [write ok]");
+            Thread.sleep(15000);
+            //Finish day
 
             //start voting
             while (true){
@@ -142,8 +156,17 @@ public class PlayerMafia {
                     }
                 }
             }
-            serverMessage = reader.readLine();
-            System.out.println(serverMessage);
+            while (true){
+                serverMessage = reader.readLine();
+                if (serverMessage.equals("kill"))
+                    role.setAlive(false);
+                if (serverMessage.equals("finish voting"))
+                    break;
+                System.out.println(serverMessage);
+            }
+            Thread.sleep(8000);
+            //End of voting
+
         } catch (UnknownHostException ex) {
             System.out.println("Server not found: " + ex.getMessage());
             ex.printStackTrace();
@@ -155,7 +178,6 @@ public class PlayerMafia {
         }
 
     }
-
 
     public String getName() {
         return this.name;
@@ -169,6 +191,9 @@ public class PlayerMafia {
         this.name = name;
     }
 
+    public void setRole(Role role) {
+        this.role = role;
+    }
 
     public static void storeUserNames(String user) {
         try (FileWriter writer = new FileWriter("users.txt", true);
@@ -178,11 +203,6 @@ public class PlayerMafia {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-
-    public void setRole(Role role) {
-        this.role = role;
     }
 
     public static boolean checkUserName(String user) {
@@ -233,14 +253,16 @@ public class PlayerMafia {
     public void chatRoom() {
         PlayerWriteMessage writeMessage = new PlayerWriteMessage(socket, this, writer);
         PlayerReadMessage readMessage = new PlayerReadMessage(socket, this);
-        writeMessage.start();
+        if (role.isCanSpeak() == false){
+            System.out.println("You can only see messages");
+        }else {
+            writeMessage.start();
+        }
         readMessage.start();
-        long start = System.currentTimeMillis();
-        long end = start + 300 * 1000;
-        if (System.currentTimeMillis() == end) {
-            writeMessage.stop();
-            readMessage.stop();
-            System.out.println("bastam");
+        try {
+            Thread.sleep(300000);
+        }catch (InterruptedException e){
+            e.printStackTrace();
         }
     }
 
