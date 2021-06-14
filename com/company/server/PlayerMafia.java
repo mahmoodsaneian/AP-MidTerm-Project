@@ -87,6 +87,9 @@ public class PlayerMafia {
             }
             //end first night
 
+            //Ask for exit
+            askForExit();
+
             //Start night game
             while (true) {
                 serverMessage = reader.readLine();
@@ -95,24 +98,26 @@ public class PlayerMafia {
                 }
                 if (serverMessage.equals("night finished")) {
                     System.out.println(serverMessage + " wait 8 seconds");
-                    Thread.sleep(8000 );
+                    Thread.sleep(8000);
                     break;
                 }
-                if (!serverMessage.equals("start your act"))
+                if ((!serverMessage.equals("start your act")) && (!serverMessage.equals("kill"))
+                        && (!serverMessage.equals("hill")) && (!serverMessage.equals("silent")))
                     System.out.println(serverMessage);
-                if (serverMessage.equals("kill"))
-                    role.setAlive(false);
+                if (serverMessage.equals("kill")) {
+                    System.out.println("you are killed");
+                    System.exit(0);
+                }
                 if (serverMessage.equals("hill"))
                     role.setAlive(true);
                 if (serverMessage.equals("silent"))
                     role.setCanSpeak(false);
             }
+            //Finish night game
 
-            //Check exit
-            if (role.isAlive() == false){
-                System.out.println("dead");
-                System.exit(1);
-            }
+            //Ask for exit
+            askForExit();
+
             //start day
             long start = System.currentTimeMillis();
             long end = start + 300 * 1000;
@@ -121,20 +126,28 @@ public class PlayerMafia {
                 if (System.currentTimeMillis() >= end)
                     break;
                 serverMessage = reader.readLine();
-                if (serverMessage.equals("start chat")){
+                if (serverMessage.equals("start chat")) {
                     chatRoom();
                 }
                 if (!serverMessage.equals("start chat"))
                     System.out.println(serverMessage);
             }
             System.out.println("end day.you can't write message.chat room closed.OK? [write ok]");
-            Thread.sleep(15000);
+            Thread.sleep(20000);
+            while (true) {
+                serverMessage = reader.readLine();
+                if (serverMessage.equals("finish chat"))
+                    break;
+            }
             //Finish day
 
+            //Ask for exit
+            askForExit();
+
             //start voting
-            while (true){
+            while (true) {
                 serverMessage = reader.readLine();
-                if(serverMessage.equals("start voting")){
+                if (serverMessage.equals("start voting")) {
                     System.out.println("Now is the time to vote. You have 30 seconds to vote");
                     voting();
                 }
@@ -144,19 +157,19 @@ public class PlayerMafia {
                     break;
             }
             //Ask from [Mayor]
-            if (role.getName().equals("Mayor")){
-                while (true){
+            if (role.getName().equals("Mayor")) {
+                while (true) {
                     System.out.println("Do you want cancel voting or no?write [yes] or [no]");
                     String cancel = scanner.nextLine();
-                    if (cancel.equals("no") || cancel.equals("yes")){
+                    if (cancel.equals("no") || cancel.equals("yes")) {
                         writer.println(cancel);
                         break;
-                    }else{
+                    } else {
                         System.out.println("Unvalid input please try again");
                     }
                 }
             }
-            while (true){
+            while (true) {
                 serverMessage = reader.readLine();
                 if (serverMessage.equals("kill"))
                     role.setAlive(false);
@@ -185,10 +198,6 @@ public class PlayerMafia {
 
     public Role getRole() {
         return role;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public void setRole(Role role) {
@@ -222,6 +231,237 @@ public class PlayerMafia {
         return true;
     }
 
+    public void chatRoom() {
+        PlayerWriteMessage writeMessage = new PlayerWriteMessage(socket, this, writer);
+        PlayerReadMessage readMessage = new PlayerReadMessage(socket, this);
+        if (role.isCanSpeak() == false) {
+            System.out.println("You can only see messages");
+        } else {
+            writeMessage.start();
+        }
+        readMessage.start();
+        try {
+            Thread.sleep(300000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void manageNightGame() {
+        String roleName = role.getName();
+        String answer = null;
+        String serverMessage = null;
+        switch (roleName) {
+            case "godFather":
+                try {
+                    serverMessage = reader.readLine();
+                    System.out.println(serverMessage);
+                    while (true) {
+                        //Get input from user
+                        answer = NightGame.mafiaAct();
+                        //Send to server
+                        writer.println(answer);
+                        //Get answer from server
+                        serverMessage = reader.readLine();
+                        //Check condition of break
+                        if (serverMessage.equals("Ok"))
+                            break;
+                        System.out.println(serverMessage);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "Doctor lector":
+                try {
+                    //KILL
+                    while (true) {
+                        //Get input from user
+                        answer = NightGame.mafiaAct();
+                        //Send to server
+                        writer.println(answer);
+                        //Get answer from server
+                        serverMessage = reader.readLine();
+                        //Check condition of break
+                        if (serverMessage.equals("Ok"))
+                            break;
+                        System.out.println(serverMessage);
+                    }
+                    //HILL
+                    while (true) {
+                        //Get input from user
+                        answer = NightGame.doctor();
+                        //Send to server
+                        writer.println(answer);
+                        //Get answer from server
+                        serverMessage = reader.readLine();
+                        //Check condition of break
+                        if (serverMessage.equals("Ok"))
+                            break;
+                        System.out.println(serverMessage);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "ordinary Mafia":
+                try {
+                    while (true) {
+                        //Get input from user
+                        answer = NightGame.mafiaAct();
+                        //Send to server
+                        writer.println(answer);
+                        //Get answer from server
+                        serverMessage = reader.readLine();
+                        //Check condition of break
+                        if (serverMessage.equals("Ok"))
+                            break;
+                        System.out.println(serverMessage);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "City doctor":
+                try {
+                    while (true) {
+                        //Get input from user
+                        answer = NightGame.doctor();
+                        //Send to server
+                        writer.println(answer);
+                        //Get answer from server
+                        serverMessage = reader.readLine();
+                        //Check condition of break
+                        if (serverMessage.equals("Ok"))
+                            break;
+                        System.out.println(serverMessage);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "Detective":
+                try {
+                    while (true) {
+                        //Get input from user
+                        answer = NightGame.detective();
+                        //Send to server
+                        writer.println(answer);
+                        //Get answer from server
+                        serverMessage = reader.readLine();
+                        //Check condition of break
+                        if (serverMessage.equals("Ok"))
+                            break;
+                        System.out.println(serverMessage);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "Sniper":
+                try {
+                    while (true) {
+                        //Get input from user
+                        answer = NightGame.sniper();
+                        //Send to server
+                        writer.println(answer);
+                        //Get answer from server
+                        serverMessage = reader.readLine();
+                        //Check condition of break
+                        if (serverMessage.equals("Ok"))
+                            break;
+                        System.out.println(serverMessage);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "Psychologist":
+                try {
+                    while (true) {
+                        //Get input from user
+                        answer = NightGame.psychologist();
+                        //Send to server
+                        writer.println(answer);
+                        //Get answer from server
+                        serverMessage = reader.readLine();
+                        //Check condition of break
+                        if (serverMessage.equals("Ok"))
+                            break;
+                        System.out.println(serverMessage);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "Die hard":
+                DieHard dieHard = (DieHard) role;
+                if (dieHard.getKillCounter() == 2) {
+                    System.out.println("You have used the permissible number of your inquiries");
+                } else {
+                    answer = NightGame.dieHard();
+                    writer.println(answer);
+                }
+                break;
+            default:
+                System.out.println("You have nothing to do at night. " +
+                        "Wait for the night to end");
+                break;
+        }
+    }
+
+    public void voting() {
+        try {
+            long start = System.currentTimeMillis();
+            long end = start + 30 * 1000;
+            String delete = null;
+
+            while (System.currentTimeMillis() < end) {
+                if (System.currentTimeMillis() >= end) {
+                    System.out.println("Your time is up");
+                    delete = "Refrained";
+                    writer.println(delete);
+                    break;
+                }
+                //Get vote from player
+                delete = role.getVote();
+                //Send to server
+                writer.println(delete);
+                //Get response from server
+                String serverMessage = reader.readLine();
+                if (serverMessage.equals("Ok")) {
+                    System.out.println("Your vote has been registered");
+                    break;
+                }
+                System.out.println(serverMessage);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void askForExit() {
+        Scanner scanner = new Scanner(System.in);
+        String answer = null;
+        String serverMessage = "";
+        try {
+            serverMessage = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (serverMessage.equals("ASK")) {
+            while (true) {
+                System.out.println("Do you want to exit?write [yes] or [no]");
+                answer = scanner.nextLine();
+                if (answer.equals("yes") || answer.equals("no"))
+                    break;
+            }
+            writer.println(answer);
+        }
+        if (answer.equals("yes"))
+            System.exit(0);
+    }
+
     public static void main(String args[]) {
         Scanner scanner = new Scanner(System.in);
         //get port of game from user
@@ -248,214 +488,5 @@ public class PlayerMafia {
         //create an object for player
         PlayerMafia playerMafia = new PlayerMafia(portNumber, user);
         playerMafia.execute();
-    }
-
-    public void chatRoom() {
-        PlayerWriteMessage writeMessage = new PlayerWriteMessage(socket, this, writer);
-        PlayerReadMessage readMessage = new PlayerReadMessage(socket, this);
-        if (role.isCanSpeak() == false){
-            System.out.println("You can only see messages");
-        }else {
-            writeMessage.start();
-        }
-        readMessage.start();
-        try {
-            Thread.sleep(300000);
-        }catch (InterruptedException e){
-            e.printStackTrace();
-        }
-    }
-
-    public void manageNightGame() {
-          String roleName = role.getName();
-          String answer = null;
-          String serverMessage = null;
-        switch (roleName) {
-            case "godFather":
-                try {
-                    serverMessage = reader.readLine();
-                    System.out.println(serverMessage);
-                    while (true){
-                        //Get input from user
-                        answer = NightGame.mafiaAct();
-                        //Send to server
-                        writer.println(answer);
-                        //Get answer from server
-                        serverMessage = reader.readLine();
-                        //Check condition of break
-                        if (serverMessage.equals("Ok"))
-                            break;
-                        System.out.println(serverMessage);
-                    }
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-                break;
-            case "Doctor lector":
-                try {
-                    //KILL
-                    while (true){
-                        //Get input from user
-                        answer = NightGame.mafiaAct();
-                        //Send to server
-                        writer.println(answer);
-                        //Get answer from server
-                        serverMessage = reader.readLine();
-                        //Check condition of break
-                        if (serverMessage.equals("Ok"))
-                            break;
-                        System.out.println(serverMessage);
-                    }
-                    //HILL
-                    while (true){
-                        //Get input from user
-                        answer = NightGame.doctor();
-                        //Send to server
-                        writer.println(answer);
-                        //Get answer from server
-                        serverMessage = reader.readLine();
-                        //Check condition of break
-                        if (serverMessage.equals("Ok"))
-                            break;
-                        System.out.println(serverMessage);
-                    }
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-                break;
-            case "ordinary Mafia":
-                try {
-                    while (true){
-                        //Get input from user
-                        answer = NightGame.mafiaAct();
-                        //Send to server
-                        writer.println(answer);
-                        //Get answer from server
-                        serverMessage = reader.readLine();
-                        //Check condition of break
-                        if (serverMessage.equals("Ok"))
-                            break;
-                        System.out.println(serverMessage);
-                    }
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-                break;
-            case "City doctor":
-                try {
-                    while (true){
-                        //Get input from user
-                        answer = NightGame.doctor();
-                        //Send to server
-                        writer.println(answer);
-                        //Get answer from server
-                        serverMessage = reader.readLine();
-                        //Check condition of break
-                        if (serverMessage.equals("Ok"))
-                            break;
-                        System.out.println(serverMessage);
-                    }
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-                break;
-            case "Detective":
-                try {
-                    while (true){
-                        //Get input from user
-                        answer = NightGame.detective();
-                        //Send to server
-                        writer.println(answer);
-                        //Get answer from server
-                        serverMessage = reader.readLine();
-                        //Check condition of break
-                        if (serverMessage.equals("Ok"))
-                            break;
-                        System.out.println(serverMessage);
-                    }
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-                break;
-            case "Sniper":
-                try {
-                    while (true){
-                        //Get input from user
-                        answer = NightGame.sniper();
-                        //Send to server
-                        writer.println(answer);
-                        //Get answer from server
-                        serverMessage = reader.readLine();
-                        //Check condition of break
-                        if (serverMessage.equals("Ok"))
-                            break;
-                        System.out.println(serverMessage);
-                    }
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-                break;
-            case "Psychologist":
-                try {
-                    while (true){
-                        //Get input from user
-                        answer = NightGame.psychologist();
-                        //Send to server
-                        writer.println(answer);
-                        //Get answer from server
-                        serverMessage = reader.readLine();
-                        //Check condition of break
-                        if (serverMessage.equals("Ok"))
-                            break;
-                        System.out.println(serverMessage);
-                    }
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-                break;
-            case "Die hard":
-                DieHard dieHard = (DieHard) role;
-                if (dieHard.getKillCounter() == 2){
-                    System.out.println("You have used the permissible number of your inquiries");
-                }else {
-                    answer = NightGame.dieHard();
-                    writer.println(answer);
-                }
-                break;
-            default:
-                System.out.println("You have nothing to do at night. " +
-                        "Wait for the night to end");
-                break;
-        }
-    }
-
-    public void voting(){
-        try {
-            long start = System.currentTimeMillis();
-            long end = start + 30 * 1000;
-            String delete = null;
-
-            while (System.currentTimeMillis() < end){
-                if (System.currentTimeMillis() >= end){
-                    System.out.println("Your time is up");
-                    delete = "Refrained";
-                    writer.println(delete);
-                    break;
-                }
-                //Get vote from player
-                delete = role.getVote();
-                //Send to server
-                writer.println(delete);
-                //Get response from server
-                String serverMessage = reader.readLine();
-                if (serverMessage.equals("Ok")){
-                    System.out.println("Your vote has been registered");
-                    break;
-                }
-                System.out.println(serverMessage);
-            }
-        }catch (IOException e){
-            e.printStackTrace();
-        }
     }
 }

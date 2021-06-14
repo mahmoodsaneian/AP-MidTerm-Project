@@ -17,6 +17,7 @@ public class Server {
     private HashMap<String,String> rolesAndUsernames;
     private ArrayList<ChatRoomHandler> chatRoomHandlers;
     private int counterClient;
+    private GameLoop gameLoop;
 
     public Server() {
         userNames         = new HashSet<String>();
@@ -24,6 +25,7 @@ public class Server {
         roles             = new CreateRoles().getNameRoles();
         rolesAndUsernames = new HashMap<String, String>();
         chatRoomHandlers  = new ArrayList<ChatRoomHandler>();
+        gameLoop = new GameLoop(this);
         counterClient     = 0;
     }
 
@@ -71,8 +73,8 @@ public class Server {
                 rolesAndUsernames.put(role,handler.getUserName());
             }
 
-            //start game
-            GameLoop gameLoop = new GameLoop(this, rolesAndUsernames);
+            //Give roles and user names to [GameLoop] class
+            gameLoop.setRolesAndUsernames(rolesAndUsernames);
 
             //start first night.
             System.out.println("The first night of the game started");
@@ -81,6 +83,10 @@ public class Server {
             System.out.println("End first night of game.Wait 8 seconds");
             Thread.sleep(8000);
 
+            //Ask for exit
+            askForExit();
+            if (userNames.size() == 0)
+                System.exit(0);
 
             //start night game
             System.out.println("Start game night");
@@ -89,13 +95,23 @@ public class Server {
             System.out.println("End night of game.Wait 8 seconds");
             Thread.sleep(8000);
 
+            //Ask for exit
+            askForExit();
+            if (userNames.size() == 0)
+                System.exit(0);
 
             //start day
             System.out.println("Start game day");
             gameLoop.day();
             //finish day
-            System.out.println("Finish game day.Wait 15 seconds");
-            Thread.sleep(15000);
+            System.out.println("Finish game day.Wait 20 seconds");
+            Thread.sleep(20000);
+            sendMessageToAll("finish chat");
+
+            //Ask for exit
+            askForExit();
+            if (userNames.size() == 0)
+                System.exit(0);
 
             //start voting
             System.out.println("Start voting");
@@ -103,6 +119,7 @@ public class Server {
             //Finish voting
             System.out.println("Finish voting.Wait 8 seconds");
             Thread.sleep(8000);
+
         } catch (IOException ex) {
             System.out.println("Error in the server: " + ex.getMessage());
             ex.printStackTrace();
@@ -239,6 +256,21 @@ public class Server {
         }catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+    public void askForExit(){
+        ArrayList<String> removes = new ArrayList<String>();
+        for (PlayerHandler handler : userThreads){
+            handler.sendMessage("ASK");
+            String answer = handler.getMessageFromPlayer();
+            if (answer.equals("yes")){
+                removes.add(handler.getUserName());
+                gameLoop.removePlayer(handler.getUserName());
+            }
+        }
+
+        for (String s : removes)
+            removeUser(s);
     }
 
     public static void main(String args[]) {

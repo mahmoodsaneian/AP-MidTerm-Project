@@ -17,21 +17,16 @@ public class GameLoop {
     private boolean dieHardAct;
     private ArrayList<String> outs;
 
-    public GameLoop(Server server, HashMap<String, String> nameRolesAndUsernames) {
+    public GameLoop(Server server) {
         this.server = server;
         rolesAndUsernames = new HashMap<Role, String>();
         dieHardAct = false;
         deads = new HashMap<Role, String>();
         outs = new ArrayList<String>();
-        initHashMap(nameRolesAndUsernames);
     }
 
     public void setDieHardAct(boolean dieHardAct) {
         this.dieHardAct = dieHardAct;
-    }
-
-    public HashMap<Role, String> getDeads() {
-        return deads;
     }
 
     public void initHashMap(HashMap<String, String> nameRolesAndUsernames) {
@@ -44,6 +39,10 @@ public class GameLoop {
         }
 
         ManageData.setRolesAndNames(rolesAndUsernames);
+    }
+
+    public void setRolesAndUsernames(HashMap<String, String> r){
+        initHashMap(r);
     }
 
     public void firstNight() {
@@ -147,6 +146,7 @@ public class GameLoop {
     }
 
     public void nightGame() {
+        //Declare variables
         boolean condition = false;
         String answer = "";
         ArrayList<String> mafiaVotes = new ArrayList<String>();
@@ -155,9 +155,11 @@ public class GameLoop {
         String doctorHill = null;
         String sniperKill = null;
         String silentPerson = null;
+
         //Send message to players [ Start Night]
         server.sendMessageToAll("The night has started and the game server will move forward. " +
                 "Wait until the night is completely over");
+
         //print exist players to player
         server.sendMessageToAll("exist player in the game : " + server.getUserNames());
 
@@ -197,11 +199,10 @@ public class GameLoop {
                 //Check validity
                 condition = checkCitizenTeam(answer);
                 if (condition == true) {
-                    if (godName == null && doctorName == null){
+                    if (godName == null && doctorName == null) {
                         godFatherAct(answer);
                         Mafiakill = answer;
-                    }
-                    else
+                    } else
                         mafiaVotes.add(answer);
                     server.sendMessageToSpecifiecPlayer(ordinaryName, "Ok");
                     condition = false;
@@ -223,7 +224,7 @@ public class GameLoop {
                 //Check validity
                 condition = checkCitizenTeam(answer);
                 if (condition == true) {
-                    if (godName == null){
+                    if (godName == null) {
                         godFatherAct(answer);
                         Mafiakill = answer;
                     } else
@@ -373,7 +374,7 @@ public class GameLoop {
                     condition = false;
                     break;
                 }
-                if (answer.equals("didn't want")){
+                if (answer.equals("didn't want")) {
                     server.sendMessageToSpecifiecPlayer(sniperName, "Ok");
                     condition = false;
                     break;
@@ -428,45 +429,45 @@ public class GameLoop {
         server.sendMessageToAll("The die hard did its job");
 
         //Send message to deads and saved pesrons
-        if (Mafiakill != null)
-            server.sendMessageToSpecifiecPlayer(Mafiakill,"kill");
         if (lectorHill != null)
-            server.sendMessageToSpecifiecPlayer(lectorHill,"hill");
+            server.sendMessageToSpecifiecPlayer(lectorHill, "hill");
         if (doctorHill != null)
-            server.sendMessageToSpecifiecPlayer(doctorHill,"hill");
+            server.sendMessageToSpecifiecPlayer(doctorHill, "hill");
         if (sniperKill != null)
-            server.sendMessageToSpecifiecPlayer(sniperKill,"kill");
+            server.sendMessageToSpecifiecPlayer(sniperKill, "kill");
+        if (Mafiakill != null)
+            server.sendMessageToSpecifiecPlayer(Mafiakill, "kill");
         if (silentPerson != null)
-            server.sendMessageToSpecifiecPlayer(silentPerson,"silent");
+            server.sendMessageToSpecifiecPlayer(silentPerson, "silent");
         //Update game
         updateGame();
         //Send message to players
         server.sendMessageToAll("night finished");
     }
 
-    public void day(){
+    public void day() {
         //send message of start day phase.
         server.sendMessageToAll("Game day has just begun");
 
         //send name of exist players to each player.
-        String serverMessage = "exist player in the game : "+ server.getUserNames();
+        String serverMessage = "exist player in the game : " + server.getUserNames();
         server.sendMessageToAll(serverMessage);
 
         //Send name of players who dead last night.
         Set<Role> roleSet = deads.keySet();
         String lastNightMessage;
-        if (roleSet.size() == 0){
+        if (roleSet.size() == 0) {
             lastNightMessage = "No one left the game last night";
-        }else{
+        } else {
             lastNightMessage = "Those who left the game last night : ";
-            for (Role role : roleSet){
+            for (Role role : roleSet) {
                 lastNightMessage += deads.get(role) + " - ";
             }
         }
         server.sendMessageToAll(lastNightMessage);
         //Send roles that are out of the game if die hard wants.
-        if (dieHardAct == true){
-            serverMessage = "Roles that are out of the game : "+outs;
+        if (dieHardAct == true) {
+            serverMessage = "Roles that are out of the game : " + outs;
             server.sendMessageToAll(serverMessage);
             dieHardAct = false;
         }
@@ -475,7 +476,7 @@ public class GameLoop {
         server.chatRoom();
         try {
             Thread.sleep(300000);
-        }catch (InterruptedException e){
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
@@ -566,22 +567,22 @@ public class GameLoop {
             //Check equals number
             boolean equality = false;
             outer:
-            for (int i = 0;i < votesCounter.length;i++){
+            for (int i = 0; i < votesCounter.length; i++) {
                 int target = votesCounter[i];
-                for (int j = 0;j < votesCounter.length;j++){
-                    if ((votesCounter[j] == target) && (!votes.get(j).equals(votes.get(i)))){
+                for (int j = 0; j < votesCounter.length; j++) {
+                    if ((votesCounter[j] == target) && (!votes.get(j).equals(votes.get(i)))) {
                         equality = true;
                         break outer;
                     }
                 }
             }
 
-            if (equality == false){
+            if (equality == false) {
                 //Find largest number of votes
                 int largest = votesCounter[0];
                 int index = 0;
-                for (int i = 1;i < votesCounter.length;i++){
-                    if (votesCounter[i] > largest){
+                for (int i = 1; i < votesCounter.length; i++) {
+                    if (votesCounter[i] > largest) {
                         largest = votesCounter[i];
                         index = i;
                     }
@@ -589,7 +590,7 @@ public class GameLoop {
                 //Kill player
                 server.sendMessageToAll(votes.get(index) + " is killed");
                 voteKill(votes.get(index));
-            }else if (equality == true){
+            } else if (equality == true) {
                 server.sendMessageToAll("No one will be removed due to an equal vote.");
             }
             //If mayor canceled voting
@@ -807,21 +808,21 @@ public class GameLoop {
         }
     }
 
-    private void voteKill(String kill){
+    private void voteKill(String kill) {
         Set<Role> roleSet = rolesAndUsernames.keySet();
         Role killvote = null;
 
         //Find role of player
-        for (Role role : roleSet){
-            if (rolesAndUsernames.get(role).equals(kill)){
+        for (Role role : roleSet) {
+            if (rolesAndUsernames.get(role).equals(kill)) {
                 killvote = role;
                 break;
             }
         }
 
-        if (killvote != null){
+        if (killvote != null) {
             System.out.println(kill + " killed");
-            server.sendMessageToSpecifiecPlayer(kill,"kill");
+            server.sendMessageToSpecifiecPlayer(kill, "kill");
             rolesAndUsernames.remove(killvote, kill);
         }
 
@@ -831,19 +832,38 @@ public class GameLoop {
     public void updateGame() {
         Set<Role> roleSet = rolesAndUsernames.keySet();
         //Find dead players
-        for (Role role : roleSet){
-            if (role.isAlive() == false){
-                deads.put(role,rolesAndUsernames.get(role));
+        for (Role role : roleSet) {
+            if (role.isAlive() == false) {
+                deads.put(role, rolesAndUsernames.get(role));
                 outs.add(role.getName());
             }
         }
 
         //Remove dead player from game
         Set<Role> setDeads = deads.keySet();
-        for (Role role : setDeads){
-            rolesAndUsernames.remove(role,deads.get(role));
+        for (Role role : setDeads) {
+            rolesAndUsernames.remove(role, deads.get(role));
             server.removeUser(deads.get(role));
         }
     }
 
+    public void removePlayer(String name) {
+        //Find role of player
+        Role role = null;
+        Set<Role> roleSet = rolesAndUsernames.keySet();
+
+        for (Role role1 : roleSet) {
+            if (rolesAndUsernames.get(role1).equals(name)) {
+                role = role1;
+                break;
+            }
+        }
+
+        //Remove player
+        if (role != null){
+            rolesAndUsernames.remove(role, name);
+            outs.add(role.getName());
+        }
+
+    }
 }
