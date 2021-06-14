@@ -823,6 +823,7 @@ public class GameLoop {
             System.out.println(kill + " killed");
             server.sendMessageToSpecifiecPlayer(kill, "kill");
             rolesAndUsernames.remove(killvote, kill);
+            server.removeUser(kill);
         }
 
         System.out.println(rolesAndUsernames);

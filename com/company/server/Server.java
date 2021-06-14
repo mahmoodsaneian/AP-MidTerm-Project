@@ -14,19 +14,19 @@ public class Server {
     private Set<String> userNames;
     private ArrayList<PlayerHandler> userThreads;
     private ArrayList<String> roles;
-    private HashMap<String,String> rolesAndUsernames;
+    private HashMap<String, String> rolesAndUsernames;
     private ArrayList<ChatRoomHandler> chatRoomHandlers;
     private int counterClient;
     private GameLoop gameLoop;
 
     public Server() {
-        userNames         = new HashSet<String>();
-        userThreads       = new ArrayList<PlayerHandler>();
-        roles             = new CreateRoles().getNameRoles();
+        userNames = new HashSet<String>();
+        userThreads = new ArrayList<PlayerHandler>();
+        roles = new CreateRoles().getNameRoles();
         rolesAndUsernames = new HashMap<String, String>();
-        chatRoomHandlers  = new ArrayList<ChatRoomHandler>();
+        chatRoomHandlers = new ArrayList<ChatRoomHandler>();
         gameLoop = new GameLoop(this);
-        counterClient     = 0;
+        counterClient = 0;
     }
 
     public void execute() {
@@ -37,7 +37,7 @@ public class Server {
                     " Wait for all players to connect");
 
             //Accept players
-            while (counterClient < 5) {
+            while (counterClient < 7) {
                 Socket socket = serverSocket.accept();
                 System.out.println("New player connected");
 
@@ -60,7 +60,7 @@ public class Server {
             System.out.println("We ask all the players if they are ready to start the game or not");
             sendMessageToAll("Are you ready to start the game?.please type [ready]");
             ArrayList<String> answers = new ArrayList<String>();
-            for (PlayerHandler handler : userThreads){
+            for (PlayerHandler handler : userThreads) {
                 String playerAnswer = handler.getMessageFromPlayer();
                 answers.add(playerAnswer);
             }
@@ -70,7 +70,7 @@ public class Server {
             for (PlayerHandler handler : userThreads) {
                 String role = getRandomRole();
                 handler.sendMessage(role);
-                rolesAndUsernames.put(role,handler.getUserName());
+                rolesAndUsernames.put(role, handler.getUserName());
             }
 
             //Give roles and user names to [GameLoop] class
@@ -89,28 +89,12 @@ public class Server {
             if (userNames.size() == 0)
                 System.exit(0);
 
-            //start night game
-            System.out.println("Start game night");
-            gameLoop.nightGame();
-            //finish nigh game
-            System.out.println("End night of game.Wait 8 seconds");
-            Thread.sleep(8000);
-
-            //Update game
-            gameLoop.updateGame();
-
-            //Ask for exit
-            System.out.println("Ask for exit");
-            askForExit();
-            if (userNames.size() == 0)
-                System.exit(0);
-
             //start day
             System.out.println("Start game day");
             gameLoop.day();
             //finish day
-            System.out.println("Finish game day.Wait 20 seconds");
-            Thread.sleep(20000);
+            System.out.println("Finish game day.Wait 1 minute");
+            Thread.sleep(60000);
             sendMessageToAll("finish chat");
 
             //Ask for exit
@@ -119,13 +103,53 @@ public class Server {
             if (userNames.size() == 0)
                 System.exit(0);
 
-            //start voting
-            System.out.println("Start voting");
-            gameLoop.voting();
-            //Finish voting
-            System.out.println("Finish voting.Wait 8 seconds");
-            Thread.sleep(8000);
+            //Game loop
+            while (true) {
+                //start night game
+                System.out.println("Start game night");
+                gameLoop.nightGame();
+                //finish nigh game
+                System.out.println("End night of game.Wait 8 seconds");
+                Thread.sleep(8000);
 
+                //Update game
+                gameLoop.updateGame();
+
+                //Check end condition
+                boolean end = gameLoop.checkEndCondition();
+                if (end == true) {
+                    sendMessageToAll("finish game");
+                    System.exit(0);
+                } else
+                    sendMessageToAll("don't finish game");
+
+                //Ask for exit
+                System.out.println("Ask for exit");
+                askForExit();
+                if (userNames.size() == 0)
+                    System.exit(0);
+
+                //start day
+                System.out.println("Start game day");
+                gameLoop.day();
+                //finish day
+                System.out.println("Finish game day.Wait 1 minute");
+                Thread.sleep(60000);
+                sendMessageToAll("finish chat");
+
+                //Ask for exit
+                System.out.println("Ask for exit");
+                askForExit();
+                if (userNames.size() == 0)
+                    System.exit(0);
+
+                //start voting
+                System.out.println("Start voting");
+                gameLoop.voting();
+                //Finish voting
+                System.out.println("Finish voting.Wait 8 seconds");
+                Thread.sleep(8000);
+            }
         } catch (IOException ex) {
             System.out.println("Error in the server: " + ex.getMessage());
             ex.printStackTrace();
@@ -142,8 +166,8 @@ public class Server {
     public void removeUser(String userName) {
         //Find thread of player
         PlayerHandler handler = null;
-        for (PlayerHandler playerHandler : userThreads){
-            if (playerHandler.getUserName().equals(userName)){
+        for (PlayerHandler playerHandler : userThreads) {
+            if (playerHandler.getUserName().equals(userName)) {
                 handler = playerHandler;
                 break;
             }
@@ -171,9 +195,9 @@ public class Server {
         return role;
     }
 
-    public void broadcast(String message, ChatRoomHandler handler){
-        for (ChatRoomHandler roomHandler : chatRoomHandlers){
-            if (roomHandler != handler){
+    public void broadcast(String message, ChatRoomHandler handler) {
+        for (ChatRoomHandler roomHandler : chatRoomHandlers) {
+            if (roomHandler != handler) {
                 roomHandler.sendMessage(message);
             }
         }
@@ -192,19 +216,19 @@ public class Server {
         }
     }
 
-    public void sendMessageToSpecifiecPlayer(String playerName, String message){
-        for (PlayerHandler playerHandler : userThreads){
-            if (playerHandler.getUserName().equals(playerName)){
+    public void sendMessageToSpecifiecPlayer(String playerName, String message) {
+        for (PlayerHandler playerHandler : userThreads) {
+            if (playerHandler.getUserName().equals(playerName)) {
                 playerHandler.sendMessage(message);
                 break;
             }
         }
     }
 
-    public String getMessageFromSpecifiecPlayer(String playerName){
+    public String getMessageFromSpecifiecPlayer(String playerName) {
         String message = "";
-        for (PlayerHandler handler : userThreads){
-            if (handler.getUserName().equals(playerName)){
+        for (PlayerHandler handler : userThreads) {
+            if (handler.getUserName().equals(playerName)) {
                 message = handler.getMessageFromPlayer();
                 break;
             }
@@ -212,13 +236,13 @@ public class Server {
         return message;
     }
 
-    public void chatRoom(){
+    public void chatRoom() {
         ArrayList<ChatRoomHandler> roomHandlers = new ArrayList<ChatRoomHandler>();
 
-        for (PlayerHandler handler : userThreads){
+        for (PlayerHandler handler : userThreads) {
             //Create an object from [ChatRoomHandler] class to player
-            ChatRoomHandler chatRoomHandler = new ChatRoomHandler(this,handler.getSocket(),
-                    handler.getUserName(),handler.getWriter(),handler.getReader());
+            ChatRoomHandler chatRoomHandler = new ChatRoomHandler(this, handler.getSocket(),
+                    handler.getUserName(), handler.getWriter(), handler.getReader());
             //Start thread of chat
             chatRoomHandler.start();
             //Add to list
@@ -231,32 +255,32 @@ public class Server {
         this.chatRoomHandlers = chatRoomHandlers;
     }
 
-    public void storeMessages(){
+    public void storeMessages() {
         ArrayList<String> messages = new ArrayList<String>();
-        for (ChatRoomHandler handler : chatRoomHandlers){
+        for (ChatRoomHandler handler : chatRoomHandlers) {
             ArrayList<String> tmp = handler.getMessages();
-            for (String s : tmp){
+            for (String s : tmp) {
                 messages.add(s);
             }
         }
-        try (FileWriter fileWriter = new FileWriter("messages.txt",true);
-             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)){
-            for (String s : messages){
+        try (FileWriter fileWriter = new FileWriter("messages.txt", true);
+             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+            for (String s : messages) {
                 s += " ";
                 bufferedWriter.write(s);
             }
             System.out.println("Finish store messages in the file");
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void askForExit(){
+    public void askForExit() {
         ArrayList<String> removes = new ArrayList<String>();
-        for (PlayerHandler handler : userThreads){
+        for (PlayerHandler handler : userThreads) {
             handler.sendMessage("ASK");
             String answer = handler.getMessageFromPlayer();
-            if (answer.equals("yes")){
+            if (answer.equals("yes")) {
                 removes.add(handler.getUserName());
                 gameLoop.removePlayer(handler.getUserName());
             }

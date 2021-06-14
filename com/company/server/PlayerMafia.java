@@ -89,46 +89,6 @@ public class PlayerMafia {
             System.out.println("Ask for exit");
             askForExit();
 
-            //Start night game
-            while (true) {
-                //Get message from server
-                serverMessage = reader.readLine();
-                //If player must start her/his act
-                if (serverMessage.equals("start your act")) {
-                    manageNightGame();
-                }
-                //If night finished
-                if (serverMessage.equals("night finished")) {
-                    System.out.println(serverMessage + " wait 8 seconds");
-                    Thread.sleep(8000);
-                    break;
-                }
-                //print server message
-                if ((!serverMessage.equals("start your act")) && (!serverMessage.equals("kill"))
-                        && (!serverMessage.equals("hill")) && (!serverMessage.equals("silent")))
-                    System.out.println(serverMessage);
-                //If player must be killed
-                if (serverMessage.equals("kill"))
-                    role.setAlive(false);
-                //If player must be saved
-                if (serverMessage.equals("hill"))
-                    role.setAlive(true);
-                //If player must be saved
-                if (serverMessage.equals("silent"))
-                    role.setCanSpeak(false);
-            }
-            //Finish night game
-
-            //If player died
-            if (!role.isAlive()) {
-                System.out.println("you are killed");
-                System.exit(0);
-            }
-
-            //Ask for [Exit]
-            System.out.println("Ask for exit");
-            askForExit();
-
             //start day
             long start = System.currentTimeMillis();
             long end = start + 300 * 1000;
@@ -149,7 +109,7 @@ public class PlayerMafia {
             }
             //Print message that day is ended
             System.out.println("end day.you can't write message.chat room closed.OK? [write ok]");
-            Thread.sleep(20000);
+            Thread.sleep(60000);
             //Finish chatroom
             while (true) {
                 serverMessage = reader.readLine();
@@ -162,64 +122,146 @@ public class PlayerMafia {
             System.out.println("Ask for exit");
             askForExit();
 
-            //Start voting
+            //Game loop
             while (true) {
-                //Get message from server
-                serverMessage = reader.readLine();
-                //If voting started
-                if (serverMessage.equals("start voting")) {
-                    System.out.println("Now is the time to vote. You have 30 seconds to vote");
-                    voting();
-                }
-                //print other messages
-                if (!serverMessage.equals("start voting"))
-                    System.out.println(serverMessage);
-                //If voting finished
-                if (serverMessage.equals("finish voting"))
-                    break;
-            }
-
-            //Ask from [Mayor]
-            if (role.getName().equals("Mayor")) {
+                //Start night game
                 while (true) {
-                    System.out.println("Do you want cancel voting or no?write [yes] or [no]");
-                    String cancel = scanner.nextLine();
-                    if (cancel.equals("no") || cancel.equals("yes")) {
-                        writer.println(cancel);
+                    //Get message from server
+                    serverMessage = reader.readLine();
+                    //If player must start her/his act
+                    if (serverMessage.equals("start your act")) {
+                        manageNightGame();
+                    }
+                    //If night finished
+                    if (serverMessage.equals("night finished")) {
+                        System.out.println(serverMessage + " wait 8 seconds");
+                        Thread.sleep(8000);
                         break;
-                    } else {
-                        System.out.println("Unvalid input please try again");
+                    }
+                    //print server message
+                    if ((!serverMessage.equals("start your act")) && (!serverMessage.equals("kill"))
+                            && (!serverMessage.equals("hill")) && (!serverMessage.equals("silent")))
+                        System.out.println(serverMessage);
+                    //If player must be killed
+                    if (serverMessage.equals("kill"))
+                        role.setAlive(false);
+                    //If player must be saved
+                    if (serverMessage.equals("hill"))
+                        role.setAlive(true);
+                    //If player must be saved
+                    if (serverMessage.equals("silent"))
+                        role.setCanSpeak(false);
+                }
+                //Finish night game
+
+                //If player died
+                if (!role.isAlive()) {
+                    System.out.println("you are killed");
+                    System.exit(0);
+                }
+
+                //Check end condition
+                serverMessage = reader.readLine();
+                if (serverMessage.equals("finish game")) {
+                    System.out.println("finish game");
+                    System.exit(0);
+                }
+
+                //Ask for [Exit]
+                System.out.println("Ask for exit");
+                askForExit();
+
+                //start day
+                start = System.currentTimeMillis();
+                end = start + 300 * 1000;
+
+                while (true) {
+                    //If the time is up
+                    if (System.currentTimeMillis() >= end)
+                        break;
+                    //Get message from server
+                    serverMessage = reader.readLine();
+                    //If server say : start chatroom
+                    if (serverMessage.equals("start chat")) {
+                        chatRoom();
+                    }
+                    //print other message except chatroom
+                    if (!serverMessage.equals("start chat"))
+                        System.out.println(serverMessage);
+                }
+                //Print message that day is ended
+                System.out.println("end day.you can't write message.chat room closed.OK? [write ok]");
+                Thread.sleep(60000);
+                //Finish chatroom
+                while (true) {
+                    serverMessage = reader.readLine();
+                    if (serverMessage.equals("finish chat"))
+                        break;
+                }
+                //Finish day
+
+                //Ask for [Exit]
+                System.out.println("Ask for exit");
+                askForExit();
+
+                //Start voting
+                while (true) {
+                    //Get message from server
+                    serverMessage = reader.readLine();
+                    //If voting started
+                    if (serverMessage.equals("start voting")) {
+                        System.out.println("Now is the time to vote. You have 30 seconds to vote");
+                        voting();
+                    }
+                    //print other messages
+                    if (!serverMessage.equals("start voting"))
+                        System.out.println(serverMessage);
+                    //If voting finished
+                    if (serverMessage.equals("finish voting"))
+                        break;
+                }
+
+                //Ask from [Mayor]
+                if (role.getName().equals("Mayor")) {
+                    while (true) {
+                        System.out.println("Do you want cancel voting or no?write [yes] or [no]");
+                        String cancel = scanner.nextLine();
+                        if (cancel.equals("no") || cancel.equals("yes")) {
+                            writer.println(cancel);
+                            break;
+                        } else {
+                            System.out.println("Unvalid input please try again");
+                        }
                     }
                 }
-            }
-            //get messages from server
-            while (true) {
-                serverMessage = reader.readLine();
+                //get messages from server
+                while (true) {
+                    serverMessage = reader.readLine();
+                    //If player died
+                    if (serverMessage.equals("kill"))
+                        role.setAlive(false);
+                    //Finish voting
+                    if (serverMessage.equals("finish voting"))
+                        break;
+                    //Print other messages
+                    if (!serverMessage.equals("kill"))
+                        System.out.println(serverMessage);
+                }
+                Thread.sleep(8000);
+                //End of voting
+
                 //If player died
-                if (serverMessage.equals("kill"))
-                    role.setAlive(false);
-                //Finish voting
-                if (serverMessage.equals("finish voting"))
-                    break;
-                //Print other messages
-                if (!serverMessage.equals("kill"))
-                    System.out.println(serverMessage);
+                if (!role.isAlive()) {
+                    System.out.println("You are killed");
+                    System.exit(0);
+                }
+
+                //History
+                System.out.println("Do you want see previous messages?write [yes] or [no]");
+                answer = scanner.nextLine();
+                if (answer.equals("yes"))
+                    showHistory();
             }
-            Thread.sleep(8000);
-            //End of voting
-
-            //If player died
-            if (!role.isAlive()) {
-                System.out.println("You are killed");
-                System.exit(0);
-            }
-
-            //History
-            System.out.println("Do you want see previous messages?write [yes] or [no]");
-            answer = scanner.nextLine();
-            if (answer.equals("yes"))
-                showHistory();
-
         } catch (UnknownHostException ex) {
             System.out.println("Server not found: " + ex.getMessage());
             ex.printStackTrace();
