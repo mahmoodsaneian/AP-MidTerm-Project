@@ -429,18 +429,17 @@ public class GameLoop {
         server.sendMessageToAll("The die hard did its job");
 
         //Send message to deads and saved pesrons
-        if (lectorHill != null)
-            server.sendMessageToSpecifiecPlayer(lectorHill, "hill");
-        if (doctorHill != null)
-            server.sendMessageToSpecifiecPlayer(doctorHill, "hill");
         if (sniperKill != null)
             server.sendMessageToSpecifiecPlayer(sniperKill, "kill");
         if (Mafiakill != null)
             server.sendMessageToSpecifiecPlayer(Mafiakill, "kill");
+        if (lectorHill != null)
+            server.sendMessageToSpecifiecPlayer(lectorHill, "hill");
+        if (doctorHill != null)
+            server.sendMessageToSpecifiecPlayer(doctorHill, "hill");
         if (silentPerson != null)
             server.sendMessageToSpecifiecPlayer(silentPerson, "silent");
-        //Update game
-        updateGame();
+
         //Send message to players
         server.sendMessageToAll("night finished");
     }
@@ -865,5 +864,32 @@ public class GameLoop {
             outs.add(role.getName());
         }
 
+    }
+
+    public boolean checkEndCondition(){
+        int mafiaCounter = 0;
+        int citizenCounter = 0;
+
+        Set<Role> roleSet = rolesAndUsernames.keySet();
+        for (Role role : roleSet){
+            if ((role.getName().equals("City doctor")) || (role.getName().equals("Detective"))
+                    || (role.getName().equals("Sniper")) || (role.getName().equals("Ordinary Citizen"))
+                    || (role.getName().equals("Mayor")) || (role.getName().equals("Psychologist")) || (role.getName().equals("Die hard"))){
+                citizenCounter++;
+            }
+            if ((role.getName().equals("godFather")) || (role.getName().equals("Doctor lector")) || (role.getName().equals("ordinary Mafia"))){
+                mafiaCounter++;
+            }
+        }
+
+        if (mafiaCounter == 0){
+            System.out.println("Citizen team Win");
+            return true;
+        }
+        if (mafiaCounter >= citizenCounter){
+            System.out.println("Mafia team win");
+            return true;
+        }
+        return false;
     }
 }

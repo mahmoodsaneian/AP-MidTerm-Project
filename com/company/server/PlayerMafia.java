@@ -9,7 +9,6 @@ import com.company.server.chatroom.PlayerWriteMessage;
 
 import java.net.*;
 import java.io.*;
-import java.util.IllegalFormatCodePointException;
 import java.util.Scanner;
 
 public class PlayerMafia {
@@ -19,7 +18,6 @@ public class PlayerMafia {
     private Role role;
     private BufferedReader reader;
     private PrintWriter writer;
-
 
     public PlayerMafia(int port, String name) {
         this.port = port;
@@ -87,35 +85,48 @@ public class PlayerMafia {
             }
             //end first night
 
-            //Ask for exit
+            //Ask for [Exit]
+            System.out.println("Ask for exit");
             askForExit();
 
             //Start night game
             while (true) {
+                //Get message from server
                 serverMessage = reader.readLine();
+                //If player must start her/his act
                 if (serverMessage.equals("start your act")) {
                     manageNightGame();
                 }
+                //If night finished
                 if (serverMessage.equals("night finished")) {
                     System.out.println(serverMessage + " wait 8 seconds");
                     Thread.sleep(8000);
                     break;
                 }
+                //print server message
                 if ((!serverMessage.equals("start your act")) && (!serverMessage.equals("kill"))
                         && (!serverMessage.equals("hill")) && (!serverMessage.equals("silent")))
                     System.out.println(serverMessage);
-                if (serverMessage.equals("kill")) {
-                    System.out.println("you are killed");
-                    System.exit(0);
-                }
+                //If player must be killed
+                if (serverMessage.equals("kill"))
+                    role.setAlive(false);
+                //If player must be saved
                 if (serverMessage.equals("hill"))
                     role.setAlive(true);
+                //If player must be saved
                 if (serverMessage.equals("silent"))
                     role.setCanSpeak(false);
             }
             //Finish night game
 
-            //Ask for exit
+            //If player died
+            if (!role.isAlive()) {
+                System.out.println("you are killed");
+                System.exit(0);
+            }
+
+            //Ask for [Exit]
+            System.out.println("Ask for exit");
             askForExit();
 
             //start day
@@ -123,17 +134,23 @@ public class PlayerMafia {
             long end = start + 300 * 1000;
 
             while (true) {
+                //If the time is up
                 if (System.currentTimeMillis() >= end)
                     break;
+                //Get message from server
                 serverMessage = reader.readLine();
+                //If server say : start chatroom
                 if (serverMessage.equals("start chat")) {
                     chatRoom();
                 }
+                //print other message except chatroom
                 if (!serverMessage.equals("start chat"))
                     System.out.println(serverMessage);
             }
+            //Print message that day is ended
             System.out.println("end day.you can't write message.chat room closed.OK? [write ok]");
             Thread.sleep(20000);
+            //Finish chatroom
             while (true) {
                 serverMessage = reader.readLine();
                 if (serverMessage.equals("finish chat"))
@@ -141,21 +158,27 @@ public class PlayerMafia {
             }
             //Finish day
 
-            //Ask for exit
+            //Ask for [Exit]
+            System.out.println("Ask for exit");
             askForExit();
 
-            //start voting
+            //Start voting
             while (true) {
+                //Get message from server
                 serverMessage = reader.readLine();
+                //If voting started
                 if (serverMessage.equals("start voting")) {
                     System.out.println("Now is the time to vote. You have 30 seconds to vote");
                     voting();
                 }
+                //print other messages
                 if (!serverMessage.equals("start voting"))
                     System.out.println(serverMessage);
+                //If voting finished
                 if (serverMessage.equals("finish voting"))
                     break;
             }
+
             //Ask from [Mayor]
             if (role.getName().equals("Mayor")) {
                 while (true) {
@@ -169,16 +192,33 @@ public class PlayerMafia {
                     }
                 }
             }
+            //get messages from server
             while (true) {
                 serverMessage = reader.readLine();
+                //If player died
                 if (serverMessage.equals("kill"))
                     role.setAlive(false);
+                //Finish voting
                 if (serverMessage.equals("finish voting"))
                     break;
-                System.out.println(serverMessage);
+                //Print other messages
+                if (!serverMessage.equals("kill"))
+                    System.out.println(serverMessage);
             }
             Thread.sleep(8000);
             //End of voting
+
+            //If player died
+            if (!role.isAlive()) {
+                System.out.println("You are killed");
+                System.exit(0);
+            }
+
+            //History
+            System.out.println("Do you want see previous messages?write [yes] or [no]");
+            answer = scanner.nextLine();
+            if (answer.equals("yes"))
+                showHistory();
 
         } catch (UnknownHostException ex) {
             System.out.println("Server not found: " + ex.getMessage());
@@ -460,6 +500,19 @@ public class PlayerMafia {
         }
         if (answer.equals("yes"))
             System.exit(0);
+    }
+
+    public void showHistory() {
+        try (FileReader fileReader = new FileReader("messages.txt");
+             BufferedReader reader = new BufferedReader(fileReader)) {
+            int i;
+            while ((i = reader.read()) != -1)
+                System.out.print((char) i);
+        } catch (FileNotFoundException f) {
+            f.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String args[]) {

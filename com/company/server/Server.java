@@ -84,6 +84,7 @@ public class Server {
             Thread.sleep(8000);
 
             //Ask for exit
+            System.out.println("Ask for exit");
             askForExit();
             if (userNames.size() == 0)
                 System.exit(0);
@@ -95,7 +96,11 @@ public class Server {
             System.out.println("End night of game.Wait 8 seconds");
             Thread.sleep(8000);
 
+            //Update game
+            gameLoop.updateGame();
+
             //Ask for exit
+            System.out.println("Ask for exit");
             askForExit();
             if (userNames.size() == 0)
                 System.exit(0);
@@ -109,6 +114,7 @@ public class Server {
             sendMessageToAll("finish chat");
 
             //Ask for exit
+            System.out.println("Ask for exit");
             askForExit();
             if (userNames.size() == 0)
                 System.exit(0);
@@ -240,19 +246,6 @@ public class Server {
                 bufferedWriter.write(s);
             }
             System.out.println("Finish store messages in the file");
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-
-    public void showHistory(){
-        try (FileReader fileReader = new FileReader("messages.txt");
-        BufferedReader reader = new BufferedReader(fileReader)){
-            int i;
-            while ((i = reader.read()) != -1)
-                System.out.print((char) i);
-        }catch (FileNotFoundException f){
-            f.printStackTrace();
         }catch (IOException e){
             e.printStackTrace();
         }
