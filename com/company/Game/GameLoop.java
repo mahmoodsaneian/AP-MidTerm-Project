@@ -96,46 +96,46 @@ public class GameLoop {
      * then sends message to other players.
      */
     public void firstNight() {
-        String name = null;
+        String name    = null;
         String message = null;
 
         //Introducing Mafia members to each other
         //Find Mafia Members
-        Role godFather = ManageData.getRole("godFather");
+        Role godFather     = ManageData.getRole("godFather");
         Role ordinaryMafia = ManageData.getRole("ordinary Mafia");
-        Role doctorlector = ManageData.getRole("Doctor lector");
+        Role doctorlector  = ManageData.getRole("Doctor lector");
 
         //Introduction to god father
-        name = rolesAndUsernames.get(godFather);
-        message = "your teammates in game are : " + rolesAndUsernames.get(doctorlector) +
-                " - " + rolesAndUsernames.get(ordinaryMafia) + "\n"
-                + rolesAndUsernames.get(doctorlector) + " is a doctor lector\n"
-                + rolesAndUsernames.get(ordinaryMafia) + " is an ordinary mafia" +
-                "You have to work together to defeat the citizens team members";
+        name    = rolesAndUsernames.get(godFather);
+        message = "your teammates in game are : " + rolesAndUsernames.get(doctorlector)
+                  +" - " + rolesAndUsernames.get(ordinaryMafia) + "\n"
+                  + rolesAndUsernames.get(doctorlector) + " is a doctor lector\n"
+                  + rolesAndUsernames.get(ordinaryMafia) + " is an ordinary mafia"
+                  +"You have to work together to defeat the citizens team members";
         if (name != null) {
             server.sendMessageToSpecifiecPlayer(name, message);
             name = null;
         }
 
         //Introduction to doctor lector
-        name = rolesAndUsernames.get(doctorlector);
-        message = "your teammates in game are : " + rolesAndUsernames.get(godFather) +
-                "-" + rolesAndUsernames.get(ordinaryMafia) + "\n"
-                + rolesAndUsernames.get(godFather) + " is a god father \n"
-                + rolesAndUsernames.get(ordinaryMafia) + " is an ordinary mafia" +
-                "You have to work together to defeat the citizens team members";
+        name    = rolesAndUsernames.get(doctorlector);
+        message = "your teammates in game are : " + rolesAndUsernames.get(godFather)
+                  +"-" + rolesAndUsernames.get(ordinaryMafia) + "\n"
+                  + rolesAndUsernames.get(godFather) + " is a god father \n"
+                  + rolesAndUsernames.get(ordinaryMafia) + " is an ordinary mafia"
+                  +"You have to work together to defeat the citizens team members";
         if (name != null) {
             server.sendMessageToSpecifiecPlayer(name, message);
             name = null;
         }
 
         //Introduction to ordinary mafia
-        name = rolesAndUsernames.get(ordinaryMafia);
+        name    = rolesAndUsernames.get(ordinaryMafia);
         message = "your teammates in game are : " + rolesAndUsernames.get(godFather)
                 + " - " + rolesAndUsernames.get(doctorlector) + "\n"
                 + rolesAndUsernames.get(godFather) + " is a god father \n"
-                + rolesAndUsernames.get(doctorlector) + " is a doctor lector" + "\n" +
-                "You have to work together to defeat the citizens team members";
+                + rolesAndUsernames.get(doctorlector) + " is a doctor lector" + "\n"
+                +"You have to work together to defeat the citizens team members";
         if (name != null) {
             server.sendMessageToSpecifiecPlayer(name, message);
             name = null;
@@ -144,9 +144,9 @@ public class GameLoop {
         //Introducing city doctor to mayor
         //Find city doctor & mayor
         Role cityDoctor = ManageData.getRole("City doctor");
-        Role mayor = ManageData.getRole("Mayor");
+        Role mayor      = ManageData.getRole("Mayor");
         //Send message to Mayor
-        name = rolesAndUsernames.get(mayor);
+        name    = rolesAndUsernames.get(mayor);
         message = "city doctor is : " + rolesAndUsernames.get(cityDoctor);
         if (name != null) {
             server.sendMessageToSpecifiecPlayer(name, message);
@@ -154,14 +154,15 @@ public class GameLoop {
         }
 
         //Send message to other roles
-        //Find other Citizen Members
-        Role psychologist = ManageData.getRole("Psychologist");
-        Role sniper = ManageData.getRole("Sniper");
+        //Find other Citizen's Members
+        Role psychologist    = ManageData.getRole("Psychologist");
+        Role sniper          = ManageData.getRole("Sniper");
         Role ordinaryCitizen = ManageData.getRole("Ordinary Citizen");
-        Role diehard = ManageData.getRole("Die hard");
-        Role detective = ManageData.getRole("Detective");
-        message = "You and the rest of the citizens' team must " +
-                "try to identify the Mafia and defeat them";
+        Role diehard         = ManageData.getRole("Die hard");
+        Role detective       = ManageData.getRole("Detective");
+        message = "You and the rest of the citizens' team must "
+                 +"try to identify the Mafia and defeat them";
+
         //Send message to [Psychologist]
         if (rolesAndUsernames.get(psychologist) != null) {
             server.sendMessageToSpecifiecPlayer(rolesAndUsernames.get(psychologist), message);
@@ -187,7 +188,7 @@ public class GameLoop {
             server.sendMessageToSpecifiecPlayer(rolesAndUsernames.get(detective), message);
         }
 
-        //Send "end message" to players
+        //Send [End message] to players
         server.sendMessageToAll("finish first night");
     }
 
@@ -202,12 +203,13 @@ public class GameLoop {
     public void nightGame() {
         //Declare variables
         boolean condition = false;
-        String answer = "";
+        String  answer    = "";
         ArrayList<String> mafiaVotes = new ArrayList<String>();
-        String lectorHill = null;
-        String Mafiakill = null;
-        String doctorHill = null;
-        String sniperKill = null;
+
+        String lectorHill   = null;
+        String mafiaKill    = null;
+        String doctorHill   = null;
+        String sniperKill   = null;
         String silentPerson = null;
 
         //Send message to players [ Start Night]
@@ -217,34 +219,34 @@ public class GameLoop {
         //print exist players to player
         server.sendMessageToAll("exist player in the game : " + server.getUserNames());
 
-        //Those who do not do anything special at night
-        Role mayor = ManageData.getRole("Mayor");
+        //Those who do not do anything special at night.[Mayor & ordinaryCitizen]
+        Role mayor           = ManageData.getRole("Mayor");
         Role ordinaryCitizen = ManageData.getRole("Ordinary Citizen");
 
-        String mayorName = rolesAndUsernames.get(mayor);
+        String mayorName   = rolesAndUsernames.get(mayor);
         String citizenName = rolesAndUsernames.get(ordinaryCitizen);
 
-        //send message to mayor
+        //Send message to [Mayor]
         if (mayorName != null) {
             server.sendMessageToSpecifiecPlayer(mayorName, "start your act");
         }
 
-        //send message to ordinary citizen
+        //Send message to [Ordinary citizen]
         if (citizenName != null) {
             server.sendMessageToSpecifiecPlayer(citizenName, "start your act");
         }
 
         //start acts of Mafia team
         //Find mafia team
-        Role godFather = ManageData.getRole("godFather");
+        Role godFather     = ManageData.getRole("godFather");
         Role ordinaryMafia = ManageData.getRole("ordinary Mafia");
-        Role doctorLector = ManageData.getRole("Doctor lector");
+        Role doctorLector  = ManageData.getRole("Doctor lector");
 
-        String godName = rolesAndUsernames.get(godFather);
-        String doctorName = rolesAndUsernames.get(doctorLector);
+        String godName      = rolesAndUsernames.get(godFather);
+        String doctorName   = rolesAndUsernames.get(doctorLector);
         String ordinaryName = rolesAndUsernames.get(ordinaryMafia);
 
-        //Send message to Ordinary Mafia.
+        //Send message to [Ordinary Mafia]
         if (ordinaryName != null) {
             server.sendMessageToSpecifiecPlayer(ordinaryName, "start your act");
             while (true) {
@@ -253,22 +255,23 @@ public class GameLoop {
                 //Check validity
                 condition = checkCitizenTeam(answer);
                 if (condition == true) {
-                    if (godName == null && doctorName == null) {
+                    if ((godName == null) && (doctorName == null)) {
                         mafiaAct(answer);
-                        Mafiakill = answer;
-                    } else
+                        mafiaKill = answer;
+                    } else{
                         mafiaVotes.add(answer);
+                    }
                     server.sendMessageToSpecifiecPlayer(ordinaryName, "Ok");
                     condition = false;
                     break;
                 } else if (condition == false) {
-                    server.sendMessageToSpecifiecPlayer(ordinaryName, "unvalid input");
+                    server.sendMessageToSpecifiecPlayer(ordinaryName, "unalid input");
                 }
             }
         }
         server.sendMessageToAll("The ordinary mafia did its job.");
 
-        //Send message to Doctor Lector.
+        //Send message to [Doctor Lector]
         if (doctorName != null) {
             server.sendMessageToSpecifiecPlayer(doctorName, "start your act");
             //KILL
@@ -280,9 +283,10 @@ public class GameLoop {
                 if (condition == true) {
                     if (godName == null) {
                         mafiaAct(answer);
-                        Mafiakill = answer;
-                    } else
+                        mafiaKill = answer;
+                    } else{
                         mafiaVotes.add(answer);
+                    }
                     server.sendMessageToSpecifiecPlayer(doctorName, "Ok");
                     condition = false;
                     break;
@@ -309,9 +313,10 @@ public class GameLoop {
         }
         server.sendMessageToAll("The doctor lector did its job");
 
-        //Send message to God Father.
+        //Send message to [God Father]
         if (godName != null) {
             server.sendMessageToSpecifiecPlayer(godName, "start your act");
+            //Send votes of [ordinary mafia & doctor lector] to god father.
             server.sendMessageToSpecifiecPlayer(godName, "votes of your team mates : " + mafiaVotes);
             while (true) {
                 //Get answer from player
@@ -319,7 +324,7 @@ public class GameLoop {
                 //Check validity
                 condition = checkCitizenTeam(answer);
                 if (condition == true) {
-                    Mafiakill = answer;
+                    mafiaKill = answer;
                     mafiaAct(answer);
                     server.sendMessageToSpecifiecPlayer(godName, "Ok");
                     condition = false;
@@ -333,19 +338,19 @@ public class GameLoop {
 
         //Start acts of Citizen team
         //Find members of Citizen Team
-        Role doctor = ManageData.getRole("City doctor");
-        Role detective = ManageData.getRole("Detective");
-        Role sniper = ManageData.getRole("Sniper");
+        Role doctor       = ManageData.getRole("City doctor");
+        Role detective    = ManageData.getRole("Detective");
+        Role sniper       = ManageData.getRole("Sniper");
         Role psychologist = ManageData.getRole("Psychologist");
-        Role dieHard = ManageData.getRole("Die hard");
+        Role dieHard      = ManageData.getRole("Die hard");
 
-        String cityDoctor = rolesAndUsernames.get(doctor);
-        String detectiveName = rolesAndUsernames.get(detective);
-        String sniperName = rolesAndUsernames.get(sniper);
+        String cityDoctor       = rolesAndUsernames.get(doctor);
+        String detectiveName    = rolesAndUsernames.get(detective);
+        String sniperName       = rolesAndUsernames.get(sniper);
         String psychologistName = rolesAndUsernames.get(psychologist);
-        String dieHardName = rolesAndUsernames.get(dieHard);
+        String dieHardName      = rolesAndUsernames.get(dieHard);
 
-        //send message to City Doctor.
+        //Send message to [City Doctor]
         if (cityDoctor != null) {
             server.sendMessageToSpecifiecPlayer(cityDoctor, "start your act");
             //Hill
@@ -358,7 +363,7 @@ public class GameLoop {
                     doctorAct(answer);
                     doctorHill = answer;
                     server.sendMessageToSpecifiecPlayer(cityDoctor, "Ok");
-                    condition = false;
+                    condition  = false;
                     break;
                 }
                 //Check validity
@@ -375,7 +380,7 @@ public class GameLoop {
         }
         server.sendMessageToAll("The city doctor did its job");
 
-        //Send message to Detective
+        //Send message to [Detective]
         if (detectiveName != null) {
             server.sendMessageToSpecifiecPlayer(detectiveName, "start your act");
             while (true) {
@@ -396,18 +401,18 @@ public class GameLoop {
                     break;
                 }
                 if (condition == false)
-                    server.sendMessageToSpecifiecPlayer(detectiveName, "Unvalid input");
+                    server.sendMessageToSpecifiecPlayer(detectiveName, "unvalid input");
             }
             server.sendMessageToSpecifiecPlayer(detectiveName, answer + " : " + detectiveAct(answer));
         }
         server.sendMessageToAll("The detective did its job");
 
-        //send message to Sniper
+        //send message to [Sniper]
         if (sniperName != null) {
             server.sendMessageToSpecifiecPlayer(sniperName, "start your act");
             while (true) {
                 //Get answer from player
-                answer = server.getMessageFromSpecifiecPlayer(sniperName);
+                answer    = server.getMessageFromSpecifiecPlayer(sniperName);
                 //Check validity
                 condition = checkCitizenTeam(answer);
                 if (condition == true) {
@@ -438,7 +443,7 @@ public class GameLoop {
         }
         server.sendMessageToAll("The sniper did its job");
 
-        //Send message to Psychologist.
+        //Send message to [Psychologist]
         if (psychologistName != null) {
             server.sendMessageToSpecifiecPlayer(psychologistName, "start your act");
             while (true) {
@@ -467,12 +472,12 @@ public class GameLoop {
                     condition = false;
                     break;
                 }
-                server.sendMessageToSpecifiecPlayer(psychologistName, "Unvalid input");
+                server.sendMessageToSpecifiecPlayer(psychologistName, "unvalid input");
             }
         }
         server.sendMessageToAll("The psychologist did its job");
 
-        //Send message to Die Hard.
+        //Send message to [Die Hard]
         if (dieHardName != null) {
             server.sendMessageToSpecifiecPlayer(dieHardName, "start your act");
             //Get answer from player
@@ -483,14 +488,14 @@ public class GameLoop {
         server.sendMessageToAll("The die hard did its job");
 
         //Send message to deads and saved pesrons
-        if (sniperKill != null)
-            server.sendMessageToSpecifiecPlayer(sniperKill, "kill");
-        if (Mafiakill != null)
-            server.sendMessageToSpecifiecPlayer(Mafiakill, "kill");
-        if (lectorHill != null)
-            server.sendMessageToSpecifiecPlayer(lectorHill, "hill");
-        if (doctorHill != null)
-            server.sendMessageToSpecifiecPlayer(doctorHill, "hill");
+        if (sniperKill   != null)
+            server.sendMessageToSpecifiecPlayer(sniperKill  , "kill");
+        if (mafiaKill    != null)
+            server.sendMessageToSpecifiecPlayer(mafiaKill   , "kill");
+        if (lectorHill   != null)
+            server.sendMessageToSpecifiecPlayer(lectorHill  , "hill");
+        if (doctorHill   != null)
+            server.sendMessageToSpecifiecPlayer(doctorHill  , "hill");
         if (silentPerson != null)
             server.sendMessageToSpecifiecPlayer(silentPerson, "silent");
 
@@ -553,7 +558,7 @@ public class GameLoop {
      * kill a person that has most votes.
      */
     public void voting() {
-        Set<Role> roleSet = rolesAndUsernames.keySet();
+        Set<Role> roleSet       = rolesAndUsernames.keySet();
         ArrayList<String> votes = new ArrayList<String>();
         String vote = null;
 
@@ -604,9 +609,9 @@ public class GameLoop {
         server.sendMessageToAll("finish voting");
 
         //Find mayor
-        Role mayor = ManageData.getRole("Mayor");
-        String mayorName = rolesAndUsernames.get(mayor);
-        boolean cancel = false;
+        Role    mayor       = ManageData.getRole("Mayor");
+        String  mayorName   = rolesAndUsernames.get(mayor);
+        boolean cancel      = false;
 
         //Get answer from [Mayor]
         if (mayorName != null) {
@@ -618,7 +623,6 @@ public class GameLoop {
         //if mayor didn't cancel voting
         if (cancel == false) {
             //Find how many votes each person has
-            String kill = null;
             int[] votesCounter = new int[votes.size()];
 
             //Counting the votes
@@ -657,6 +661,8 @@ public class GameLoop {
                 }
                 //Kill player
                 server.sendMessageToAll(votes.get(index) + " is killed");
+                server.sendMessageToSpecifiecPlayer(votes.get(index), "kill");
+                server.sendMessageToSpecifiecPlayer(votes.get(index),"finish voting");
                 voteKill(votes.get(index));
             } else if (equality == true) {
                 server.sendMessageToAll("No one will be removed due to an equal vote.");
@@ -666,7 +672,9 @@ public class GameLoop {
             server.sendMessageToAll("The mayor canceled the vote");
         }
 
+        //Send [End message] to players
         server.sendMessageToAll("finish voting");
+        System.out.println("after voting. exist players : "+ server.getUserNames());
     }
 
     /*
@@ -677,22 +685,22 @@ public class GameLoop {
      */
     private boolean checkCitizenTeam(String name) {
         //Find roles
-        Role mayor = ManageData.getRole("Mayor");
-        Role sniper = ManageData.getRole("Sniper");
-        Role psychologist = ManageData.getRole("Psychologist");
+        Role mayor           = ManageData.getRole("Mayor");
+        Role sniper          = ManageData.getRole("Sniper");
+        Role psychologist    = ManageData.getRole("Psychologist");
         Role ordinaryCitizen = ManageData.getRole("Ordinary Citizen");
-        Role dieHard = ManageData.getRole("Die hard");
-        Role detective = ManageData.getRole("Detective");
-        Role doctor = ManageData.getRole("City doctor");
+        Role dieHard         = ManageData.getRole("Die hard");
+        Role detective       = ManageData.getRole("Detective");
+        Role doctor          = ManageData.getRole("City doctor");
 
         //Find roles owners
-        String mayorName = rolesAndUsernames.get(mayor);
-        String sniperName = rolesAndUsernames.get(sniper);
+        String mayorName        = rolesAndUsernames.get(mayor);
+        String sniperName       = rolesAndUsernames.get(sniper);
         String psychologistName = rolesAndUsernames.get(psychologist);
-        String ordinaryName = rolesAndUsernames.get(ordinaryCitizen);
-        String dieHardName = rolesAndUsernames.get(dieHard);
-        String detectiveName = rolesAndUsernames.get(detective);
-        String doctorName = rolesAndUsernames.get(doctor);
+        String ordinaryName     = rolesAndUsernames.get(ordinaryCitizen);
+        String dieHardName      = rolesAndUsernames.get(dieHard);
+        String detectiveName    = rolesAndUsernames.get(detective);
+        String doctorName       = rolesAndUsernames.get(doctor);
 
         if (mayorName != null)
             if (mayorName.equals(name))
@@ -727,13 +735,13 @@ public class GameLoop {
      */
     private boolean checkMafiaTeam(String name) {
         //Find roles
-        Role godfather = ManageData.getRole("godFather");
-        Role doctorLector = ManageData.getRole("Doctor lector");
+        Role godfather     = ManageData.getRole("godFather");
+        Role doctorLector  = ManageData.getRole("Doctor lector");
         Role ordinaryMafia = ManageData.getRole("ordinary Mafia");
 
         //Find roles owners
-        String godName = rolesAndUsernames.get(godfather);
-        String doctorName = rolesAndUsernames.get(doctorLector);
+        String godName      = rolesAndUsernames.get(godfather);
+        String doctorName   = rolesAndUsernames.get(doctorLector);
         String ordinaryName = rolesAndUsernames.get(ordinaryMafia);
 
         if (godName != null)
@@ -929,13 +937,11 @@ public class GameLoop {
         }
 
         if (killvote != null) {
-            System.out.println(kill + " killed");
-            server.sendMessageToSpecifiecPlayer(kill, "kill");
+            System.out.println(kill + " is killed");
             rolesAndUsernames.remove(killvote, kill);
             server.removeUser(kill);
+            outs.add(killvote.getName());
         }
-
-        System.out.println(rolesAndUsernames);
     }
 
     /**
@@ -945,7 +951,7 @@ public class GameLoop {
      */
     public void updateGame() {
         Set<Role> roleSet = rolesAndUsernames.keySet();
-        //Find dead players
+        //Find died players
         for (Role role : roleSet) {
             if (role.isAlive() == false) {
                 deads.put(role, rolesAndUsernames.get(role));
@@ -953,7 +959,7 @@ public class GameLoop {
             }
         }
 
-        //Remove dead player from game
+        //Remove died players from game
         Set<Role> setDeads = deads.keySet();
         for (Role role : setDeads) {
             rolesAndUsernames.remove(role, deads.get(role));
@@ -966,10 +972,10 @@ public class GameLoop {
      * @param name the name of player who we want remove it.
      */
     public void removePlayer(String name) {
-        //Find role of player
         Role role = null;
         Set<Role> roleSet = rolesAndUsernames.keySet();
 
+        //Find role of player
         for (Role role1 : roleSet) {
             if (rolesAndUsernames.get(role1).equals(name)) {
                 role = role1;
@@ -994,6 +1000,7 @@ public class GameLoop {
         int citizenCounter = 0;
 
         Set<Role> roleSet = rolesAndUsernames.keySet();
+        //Find number of mafia team & citizen team
         for (Role role : roleSet){
             if ((role.getName().equals("City doctor")) || (role.getName().equals("Detective"))
                     || (role.getName().equals("Sniper")) || (role.getName().equals("Ordinary Citizen"))
@@ -1009,6 +1016,7 @@ public class GameLoop {
             System.out.println("Citizen team Win");
             return true;
         }
+
         if (mafiaCounter >= citizenCounter){
             System.out.println("Mafia team win");
             return true;

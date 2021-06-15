@@ -230,7 +230,7 @@ public class PlayerMafia {
                 }
                 //Finish day
 
-                //Ask for [Exit]
+               //Ask for [Exit]
                 System.out.println("Ask for exit");
                 askForExit();
 
@@ -371,6 +371,7 @@ public class PlayerMafia {
     public void chatRoom() {
         PlayerWriteMessage writeMessage = new PlayerWriteMessage(socket, this, writer);
         PlayerReadMessage readMessage = new PlayerReadMessage(socket, this);
+
         if (role.isCanSpeak() == false) {
             System.out.println("You can only see messages");
             role.setCanSpeak(true);
@@ -395,6 +396,7 @@ public class PlayerMafia {
         String roleName = role.getName();
         String answer = null;
         String serverMessage = null;
+
         switch (roleName) {
             case "godFather":
                 try {
@@ -540,11 +542,13 @@ public class PlayerMafia {
                 break;
             case "Die hard":
                 DieHard dieHard = (DieHard) role;
-                if (dieHard.getKillCounter() == 2) {
+                if (dieHard.getInquiryCounter() >= 2) {
                     System.out.println("You have used the permissible number of your inquiries");
                 } else {
                     answer = NightGame.dieHard();
                     writer.println(answer);
+                    if (answer.equals("yes"))
+                        dieHard.increamentInquiryCounter();
                 }
                 break;
             default:
@@ -597,14 +601,18 @@ public class PlayerMafia {
      * also server remove it.
      */
     public void askForExit() {
-        Scanner scanner = new Scanner(System.in);
-        String answer = null;
+        Scanner scanner      = new Scanner(System.in);
+        String answer        = null;
         String serverMessage = "";
+
+        //Read server message
         try {
             serverMessage = reader.readLine();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        //Ask from player
         if (serverMessage.equals("ASK")) {
             while (true) {
                 System.out.println("Do you want to exit?write [yes] or [no]");
@@ -612,6 +620,7 @@ public class PlayerMafia {
                 if (answer.equals("yes") || answer.equals("no"))
                     break;
             }
+            //Send valid answer to server
             writer.println(answer);
         }
         if (answer.equals("yes"))
@@ -628,6 +637,7 @@ public class PlayerMafia {
             int i;
             while ((i = reader.read()) != -1)
                 System.out.print((char) i);
+            System.out.println();
         } catch (FileNotFoundException f) {
             f.printStackTrace();
         } catch (IOException e) {
@@ -647,6 +657,7 @@ public class PlayerMafia {
             else
                 System.out.println("invalid port number");
         }
+
         //We check that the username is not duplicate
         boolean condition = false;
         String user = "";
@@ -658,6 +669,7 @@ public class PlayerMafia {
                 break;
         }
         storeUserNames(user);
+
         //create an object for player
         PlayerMafia playerMafia = new PlayerMafia(portNumber, user);
         playerMafia.execute();

@@ -54,14 +54,18 @@ public class NightGame {
      * @return name of person who sniper wants to kill.
      */
     public static String sniper() {
-        System.out.println("Do you want to use your role?");
-        String answer = scanner.nextLine();
         String kill = "";
-        if (answer.equals("yes")){
-            System.out.println("Who do you want to kill?");
-            kill = scanner.nextLine();
-        }else if (answer.equals("no")){
-            kill = "didn't want";
+        while (true) {
+            System.out.println("Do you want to use your role?");
+            String answer = scanner.nextLine();
+            if (answer.equals("yes")) {
+                System.out.println("Who do you want to kill?");
+                kill = scanner.nextLine();
+            } else if (answer.equals("no")) {
+                kill = "didn't want";
+            }
+            if (answer.equals("yes") || answer.equals("no"))
+                break;
         }
         return kill;
     }
@@ -72,14 +76,18 @@ public class NightGame {
      * @return name of person who psychologist wants to silent it.
      */
     public static String psychologist() {
-        System.out.println("Do you want to use your role?");
-        String answer = scanner.nextLine();
         String silent = "";
-        if (answer.equals("yes")){
-            System.out.println("who do you want to silent it?");
-            silent = scanner.nextLine();
-        }else if (answer.equals("no")){
-            silent = "didn't want";
+        while (true) {
+            System.out.println("Do you want to use your role?");
+            String answer = scanner.nextLine();
+            if (answer.equals("yes")) {
+                System.out.println("who do you want to silent it?");
+                silent = scanner.nextLine();
+            } else if (answer.equals("no")) {
+                silent = "didn't want";
+            }
+            if (answer.equals("yes") || answer.equals("no"))
+                break;
         }
         return silent;
     }

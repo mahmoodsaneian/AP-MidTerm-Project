@@ -45,13 +45,13 @@ public class Server {
      * also initialize counter of player.
      */
     public Server() {
-        userNames = new HashSet<String>();
-        playerHandlers = new ArrayList<PlayerHandler>();
-        roles = new CreateRoles().getNameRoles();
+        userNames         = new HashSet<String>();
+        playerHandlers    = new ArrayList<PlayerHandler>();
+        roles             = new CreateRoles().getNameRoles();
         rolesAndUsernames = new HashMap<String, String>();
-        chatRoomHandlers = new ArrayList<ChatRoomHandler>();
-        gameLoop = new GameLoop(this);
-        counterPlayer = 0;
+        chatRoomHandlers  = new ArrayList<ChatRoomHandler>();
+        gameLoop          = new GameLoop(this);
+        counterPlayer     = 0;
     }
 
     /**
@@ -69,7 +69,7 @@ public class Server {
                     " Wait for all players to connect");
 
             //Accept players
-            while (counterPlayer < 7) {
+            while (counterPlayer < 10) {
                 Socket socket = serverSocket.accept();
                 System.out.println("New player connected");
 
@@ -91,6 +91,7 @@ public class Server {
             //Declaration of readiness.get answer from players.
             System.out.println("We ask all the players if they are ready to start the game or not");
             sendMessageToAll("Are you ready to start the game?.please type [ready]");
+
             ArrayList<String> answers = new ArrayList<String>();
             for (PlayerHandler handler : playerHandlers) {
                 String playerAnswer = handler.getMessageFromPlayer();
@@ -243,7 +244,7 @@ public class Server {
      */
     public String getRandomRole() {
         Random random = new Random();
-        String role = roles.get(random.nextInt(roles.size()));
+        String role   = roles.get(random.nextInt(roles.size()));
         roles.remove(role);
         return role;
     }
@@ -381,6 +382,7 @@ public class Server {
             String answer = handler.getMessageFromPlayer();
             if (answer.equals("yes")) {
                 removes.add(handler.getUserName());
+                System.out.println(handler.getUserName() + " quitted");
                 gameLoop.removePlayer(handler.getUserName());
             }
         }
