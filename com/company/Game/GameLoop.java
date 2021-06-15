@@ -5,18 +5,38 @@ import com.company.characters.DieHard;
 import com.company.characters.DoctorLector;
 import com.company.characters.Role;
 import com.company.server.Server;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
+/**
+ * this class include some methods that execute main parts of game
+ * such as first night, night, day, voting, check end condition.
+ * also include some private methods that execute act of each role.
+ * methods of this class call from server class.
+ * also this class include a hashmap that specifies each player has which role.
+ *
+ * @author  mahmood-saneian
+ * @since   2021-6-15
+ * @version 15.0.2
+ */
 public class GameLoop {
+    //the server of game
     private Server server;
+    //specifies each player has which role
     private HashMap<Role, String> rolesAndUsernames;
+    //contains players that died at game night
     private HashMap<Role, String> deads;
+    //specifies that die hard wants get inquiry about roles that leave from game or no
     private boolean dieHardAct;
+    //contains name of roles that died at game night
     private ArrayList<String> outs;
 
+    /**
+     * this constructor get server of game and allocate memory for
+     * lists & hashmaps.also init boolean of diehard act.
+     * @param server the server of game.
+     */
     public GameLoop(Server server) {
         this.server = server;
         rolesAndUsernames = new HashMap<Role, String>();
@@ -25,10 +45,20 @@ public class GameLoop {
         outs = new ArrayList<String>();
     }
 
+    /**
+     * this method get a boolean and set to die hard act.
+     * @param dieHardAct is tru or false.
+     */
     public void setDieHardAct(boolean dieHardAct) {
         this.dieHardAct = dieHardAct;
     }
 
+    /**
+     * this method get a hashmap that include name of players & name of roles
+     * in the game.then create a new hashmap that include name of player & player's
+     * role in the game.
+     * @param nameRolesAndUsernames the hashmap that include name of player and name of exists role in the game.
+     */
     public void initHashMap(HashMap<String, String> nameRolesAndUsernames) {
         Set<String> nameRoles = nameRolesAndUsernames.keySet();
 
@@ -41,10 +71,30 @@ public class GameLoop {
         ManageData.setRolesAndNames(rolesAndUsernames);
     }
 
+    /**
+     * this method get a hashmap that include information about
+     * each player's role & set to rolesAndUsernames.
+     * @param r the hashmap that include information about each player's role.
+     */
     public void setRolesAndUsernames(HashMap<String, String> r){
         initHashMap(r);
     }
 
+    /**
+     * this method clear hashmap of deads players.
+     * use after game night.
+     */
+    public void clearDeads() {
+        deads.clear();
+    }
+
+    /**
+     * this method manages first night of game.
+     * sends suitable message to each player.
+     * at first night of game , mafia's members know each other
+     * and also mayor knows city of doctor.
+     * then sends message to other players.
+     */
     public void firstNight() {
         String name = null;
         String message = null;
@@ -141,10 +191,14 @@ public class GameLoop {
         server.sendMessageToAll("finish first night");
     }
 
-    public void clearDeads() {
-        deads.clear();
-    }
-
+    /**
+     * this method manages game night.
+     * in order, sends messages to players & receives messages from then.
+     * first sends message to mayor & ordinary citizen.
+     * then , in order sends messages to :
+     * ordinary mafia, doctor lector, godfather, city doctor, detective, sniper, psychologist, die hard.
+     * then send messages to persons who killed or saved during the night.
+     */
     public void nightGame() {
         //Declare variables
         boolean condition = false;
@@ -200,7 +254,7 @@ public class GameLoop {
                 condition = checkCitizenTeam(answer);
                 if (condition == true) {
                     if (godName == null && doctorName == null) {
-                        godFatherAct(answer);
+                        mafiaAct(answer);
                         Mafiakill = answer;
                     } else
                         mafiaVotes.add(answer);
@@ -225,7 +279,7 @@ public class GameLoop {
                 condition = checkCitizenTeam(answer);
                 if (condition == true) {
                     if (godName == null) {
-                        godFatherAct(answer);
+                        mafiaAct(answer);
                         Mafiakill = answer;
                     } else
                         mafiaVotes.add(answer);
@@ -266,7 +320,7 @@ public class GameLoop {
                 condition = checkCitizenTeam(answer);
                 if (condition == true) {
                     Mafiakill = answer;
-                    godFatherAct(answer);
+                    mafiaAct(answer);
                     server.sendMessageToSpecifiecPlayer(godName, "Ok");
                     condition = false;
                     break;
@@ -444,6 +498,13 @@ public class GameLoop {
         server.sendMessageToAll("night finished");
     }
 
+    /**
+     * this method manages game day.
+     * at first, prints name of players that exist in the game.
+     * then , prints information about last game night.
+     * then , if die hard wants, print name of roles that exit from game.
+     * then, start chat room for 5 minutes.
+     */
     public void day() {
         //send message of start day phase.
         server.sendMessageToAll("Game day has just begun");
@@ -464,6 +525,7 @@ public class GameLoop {
             }
         }
         server.sendMessageToAll(lastNightMessage);
+
         //Send roles that are out of the game if die hard wants.
         if (dieHardAct == true) {
             serverMessage = "Roles that are out of the game : " + outs;
@@ -483,6 +545,13 @@ public class GameLoop {
         clearDeads();
     }
 
+    /**
+     * this method manages voting of game.
+     * at first , get valid vote from each player.
+     * then , ask from mayor for cancel voting or no.
+     * then , if mayor doesn't cancel voting , counts votes &
+     * kill a person that has most votes.
+     */
     public void voting() {
         Set<Role> roleSet = rolesAndUsernames.keySet();
         ArrayList<String> votes = new ArrayList<String>();
@@ -600,6 +669,12 @@ public class GameLoop {
         server.sendMessageToAll("finish voting");
     }
 
+    /*
+     * this is a private method that get a name and
+     * search between citizen's members.
+     * if this name exists in the citizen team return true
+     * otherwise return false.
+     */
     private boolean checkCitizenTeam(String name) {
         //Find roles
         Role mayor = ManageData.getRole("Mayor");
@@ -644,6 +719,12 @@ public class GameLoop {
         return false;
     }
 
+    /*
+     * this is a private method that get a name and
+     * search between mafia's members.
+     * if this name exists in the mafia team return true
+     * otherwise return false.
+     */
     private boolean checkMafiaTeam(String name) {
         //Find roles
         Role godfather = ManageData.getRole("godFather");
@@ -668,7 +749,11 @@ public class GameLoop {
         return false;
     }
 
-    private void godFatherAct(String kill) {
+    /*
+     * this is a private method that do mafia act.
+     * get a name and kill it.
+     */
+    private void mafiaAct(String kill) {
         Role role = null;
         Set<Role> roleSet = rolesAndUsernames.keySet();
 
@@ -687,7 +772,7 @@ public class GameLoop {
                 if (dieHard.getKillCounter() >= 2) {
                     dieHard.setAlive(false);
                 } else {
-                    dieHard.increament();
+                    dieHard.increamentKillCounter();
                 }
             } else {
                 role.setAlive(false);
@@ -695,6 +780,10 @@ public class GameLoop {
         }
     }
 
+    /*
+     * this is a private method that do doctor lector act
+     * get a name and save it.
+     */
     private void lectorAct(String hill) {
         Role role = null;
         Set<Role> roleSet = rolesAndUsernames.keySet();
@@ -725,6 +814,10 @@ public class GameLoop {
         }
     }
 
+    /*
+     * this is a private method that do city doctor act
+     * get a name and save it.
+     */
     private void doctorAct(String hill) {
         Role role = null;
         Set<Role> roleSet = rolesAndUsernames.keySet();
@@ -755,6 +848,10 @@ public class GameLoop {
         }
     }
 
+    /*
+     * this is a private method that do detective act.
+     * get a name and return response of it's inquiry.
+     */
     private boolean detectiveAct(String name) {
         Role role = null;
         Set<Role> roleSet = rolesAndUsernames.keySet();
@@ -772,6 +869,10 @@ public class GameLoop {
         return b;
     }
 
+    /*
+     * this is a private method that do sniper act.
+     * get a name and kill it.
+     */
     private void sniperAct(String kill) {
         Role role = null;
         Set<Role> roleSet = rolesAndUsernames.keySet();
@@ -790,6 +891,10 @@ public class GameLoop {
         }
     }
 
+    /*
+     * this is a private method that do psychologist act.
+     * get a name and silent it.
+     */
     private void psychologistAct(String name) {
         Role role = null;
         Set<Role> roleSet = rolesAndUsernames.keySet();
@@ -807,6 +912,10 @@ public class GameLoop {
         }
     }
 
+    /*
+     * this is a private method that use after voting.
+     * get a name [that achieved most votes] and kill it.
+     */
     private void voteKill(String kill) {
         Set<Role> roleSet = rolesAndUsernames.keySet();
         Role killvote = null;
@@ -829,6 +938,11 @@ public class GameLoop {
         System.out.println(rolesAndUsernames);
     }
 
+    /**
+     * this method update game.
+     * remove players who died during night from main hashmap of game
+     * and add them into deads hashmap.
+     */
     public void updateGame() {
         Set<Role> roleSet = rolesAndUsernames.keySet();
         //Find dead players
@@ -847,6 +961,10 @@ public class GameLoop {
         }
     }
 
+    /**
+     * this method gets a name and remove it from main hashmap of game.
+     * @param name the name of player who we want remove it.
+     */
     public void removePlayer(String name) {
         //Find role of player
         Role role = null;
@@ -867,6 +985,10 @@ public class GameLoop {
 
     }
 
+    /**
+     * this method checks condition of end game.
+     * @return true[If game must be end] or false
+     */
     public boolean checkEndCondition(){
         int mafiaCounter = 0;
         int citizenCounter = 0;

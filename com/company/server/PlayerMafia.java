@@ -6,24 +6,54 @@ import com.company.characters.DieHard;
 import com.company.characters.Role;
 import com.company.server.chatroom.PlayerReadMessage;
 import com.company.server.chatroom.PlayerWriteMessage;
-
 import java.net.*;
 import java.io.*;
 import java.util.Scanner;
 
+/**
+ * This class is the most important game class after the server class.
+ * get a port & valid username from player & connecto to the server.
+ * It works according to the messages it receives from the server.
+ * also include some information about a player
+ * such as name of player, role of player & ....
+ * also when player wants to see previous messages ,
+ * show previous messages to player.
+ *
+ *
+ * @author  mahmood-saneian
+ * @since   2021-6-15
+ * @version 15.0.2
+ */
 public class PlayerMafia {
+    //The socket of player
     private Socket socket;
+    //The name of player
     private String name;
+    //The port of game
     private int port;
+    //The role of player
     private Role role;
+    //For read message from server
     private BufferedReader reader;
+    //For write message to server
     private PrintWriter writer;
 
+    /**
+     * this constructor get name of player & port of game then set to fields.
+     * @param port the port of game.
+     * @param name the name of player.
+     */
     public PlayerMafia(int port, String name) {
         this.port = port;
         this.name = name;
     }
 
+    /**
+     * This method is the main method of this class.
+     * Manages the game on the player side
+     * It also behaves according to the messages received from the server.
+     * If the player dies during the game, the program closes.
+     */
     public void execute() {
         try {
             //connect to the server
@@ -274,18 +304,34 @@ public class PlayerMafia {
 
     }
 
+    /**
+     * this method return name of player.
+     * @return the name of player.
+     */
     public String getName() {
         return this.name;
     }
 
+    /**
+     * this method return role of player.
+     * @return the role of player.
+     */
     public Role getRole() {
         return role;
     }
 
+    /**
+     * this method set role of player.
+     * @param role the role of player.
+     */
     public void setRole(Role role) {
         this.role = role;
     }
 
+    /**
+     * this method stores usernames in the file.
+     * @param user new user name.
+     */
     public static void storeUserNames(String user) {
         try (FileWriter writer = new FileWriter("users.txt", true);
              BufferedWriter bufferedWriter = new BufferedWriter(writer)) {
@@ -296,6 +342,11 @@ public class PlayerMafia {
         }
     }
 
+    /**
+     * this method get username & checks duplication.
+     * @param user the usename.
+     * @return true or false.
+     */
     public static boolean checkUserName(String user) {
         try (FileReader fileReader = new FileReader("users.txt");
              BufferedReader reader = new BufferedReader(fileReader)) {
@@ -313,11 +364,16 @@ public class PlayerMafia {
         return true;
     }
 
+    /**
+     * this method use during chatroom.
+     * create objects from [PlayerReadMessage] & [PlayerWriteMessage].
+     */
     public void chatRoom() {
         PlayerWriteMessage writeMessage = new PlayerWriteMessage(socket, this, writer);
         PlayerReadMessage readMessage = new PlayerReadMessage(socket, this);
         if (role.isCanSpeak() == false) {
             System.out.println("You can only see messages");
+            role.setCanSpeak(true);
         } else {
             writeMessage.start();
         }
@@ -329,6 +385,12 @@ public class PlayerMafia {
         }
     }
 
+    /**
+     * Depending on the role of the player,
+     * this method calls the appropriate method from the night Game class.
+     * It then sends the answer to the server and checks its correctness.
+     * It then sends the answer to the server and checks its correctness.
+     */
     public void manageNightGame() {
         String roleName = role.getName();
         String answer = null;
@@ -492,6 +554,11 @@ public class PlayerMafia {
         }
     }
 
+    /**
+     * this method use for voting.
+     * It takes a vote from the player and then sends it to the server.
+     * It will end if the server confirms it correctly.
+     */
     public void voting() {
         try {
             long start = System.currentTimeMillis();
@@ -522,6 +589,13 @@ public class PlayerMafia {
         }
     }
 
+    /**
+     * this method ask from player that
+     * does s/he want to exit from game or no?
+     * sends player's answer to server.
+     * if s/he wants exit from game . close the console.
+     * also server remove it.
+     */
     public void askForExit() {
         Scanner scanner = new Scanner(System.in);
         String answer = null;
@@ -544,6 +618,10 @@ public class PlayerMafia {
             System.exit(0);
     }
 
+    /**
+     * this method shows all previous chatroom's messages
+     * to player.
+     */
     public void showHistory() {
         try (FileReader fileReader = new FileReader("messages.txt");
              BufferedReader reader = new BufferedReader(fileReader)) {
